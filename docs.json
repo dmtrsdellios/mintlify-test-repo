@@ -249,88 +249,10 @@
           },
           {
             "group": "Pleo.io API (DEPRECATED)",
-            "pages": [
-              "reference/notice",
-              "reference/authentication-legacy",
-              "reference/attribute-explanations",
-              "reference/request-ids",
-              "reference/errors",
-              "reference/versioning",
-              "reference/faq-1",
-              "reference/open-api",
-              {
-                "group": "HealthCheck",
-                "pages": [
-                  "reference/healthstatus"
-                ]
-              },
-              {
-                "group": "Expenses",
-                "pages": [
-                  "reference/getexpense"
-                ]
-              },
-              {
-                "group": "Tag Groups",
-                "pages": [
-                  "reference/gettaggroups"
-                ]
-              },
-              {
-                "group": "Company",
-                "pages": [
-                  "reference/getcompanybalance"
-                ]
-              },
-              {
-                "group": "Receipts",
-                "pages": [
-                  "reference/getexpensereceipts"
-                ]
-              },
-              {
-                "group": "Employees",
-                "pages": [
-                  "reference/getemployee-1"
-                ]
-              },
-              {
-                "group": "Accounts",
-                "pages": [
-                  "reference/getaccount"
-                ]
-              },
-              {
-                "group": "Experimental",
-                "pages": [
-                  "reference/getaccountgroupsv1_1"
-                ]
-              },
-              {
-                "group": "Teams",
-                "pages": [
-                  "reference/createteam"
-                ]
-              },
-              {
-                "group": "Tax Codes",
-                "pages": [
-                  "reference/gettaxcode"
-                ]
-              },
-              {
-                "group": "Export Items (v1)",
-                "pages": [
-                  "reference/getexportitemsv1"
-                ]
-              },
-              {
-                "group": "Export API (v1)",
-                "pages": [
-                  "reference/createexportjobeventv1"
-                ]
-              }
-            ]
+            "openapi": {
+              "directory": "api-reference",
+              "source": " https://openapi.pleo.io/v1/swagger.json"
+            }
           }
         ]
       }
