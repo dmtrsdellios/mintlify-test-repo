@@ -1,0 +1,48 @@
+---
+title: "Metadata"
+description: "The  object enables an integration to send additional information, structured as key value pairs, for either their own use or for reference. For example, the parameter in a request to  endpoint includes additional information about an installation."
+---
+
+The information sent in the `Metadata` parameter must conform with the following guidelines:
+
+* You can add a total 50 key value pairs within the following data limits:
+
+  * Key: 40 characters limit
+  * Value: 500 characters limit
+
+* **Must not** include any information that semantically resembles any Pleo feature or function. However, the information in the `metadata` parameter might be displayed in the Pleo product as unstructured data and might be used for full-text search.
+
+## Sample Metadata Use Case
+
+* `GET Get client installation` response: Returns additional information about the specific installation
+  ```
+  {
+    "applicationId": "123e4567-e89b-12d3-a456-426614174000",
+    "createdAt": "2021-01-01T00:00:00Z",
+    "errorCode": "NOT_ENTITLED",
+    "id": "123e4567-e89b-12d3-a456-426614174000",
+    "metadata": {
+      "key": "value"
+    },
+    "resource": "urn:pleo:company:123e4567-e89b-12d3-a456-426614174000",
+    "status": "ACTIVATED",
+    "updatedAt": "2021-01-01T00:00:00Z"
+  }
+  ```
+* `GET Retrieves an account in Pleo by its ID`: Returns additional information about the specific account
+  ```
+  {
+    "data": {
+      "archived": false,
+      "code": "2001",
+      "companyId": "123e4567-e89b-12d3-a456-426614174006",
+      "externalId": "External Id",
+      "id": "123e4567-e89b-12d3-a456-426614174005",
+      "metadata": {
+        "key": "value"
+      },
+      "name": "Bank Charges",
+      "taxCodeExternalId": "IVA 20"
+    }
+  }
+  ```

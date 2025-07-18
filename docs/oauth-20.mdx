@@ -1,0 +1,55 @@
+---
+title: "OAuth 2.0"
+description: "Suggest Edits"
+---
+
+## What is OAuth?
+
+**OAuth 2.0**, or simply **OAuth**, is an industry standard for secured authorisation of web applications, allowing them to request access to user-owned resources from external resource providers, without asking users for their access credentials, such as passwords.
+
+A few important characteristics of OAuth 2.0:
+
+* In order to grant access, OAuth does not request for users' credentials.
+* OAuth 2.0 also restricts actions — it keeps a check on what an external website/application performs on the resources hosted on other websites/applications.
+
+## Roles
+
+OAuth is a standard designed for access delegation. This includes the following four roles participating in the OAuth protocol (explained here in the context of integrating with Pleo):
+
+* **Resource owner**: Pleo's customer - a company or an organisation (multi-entity set up) that owns a number of protected resources, such as accounting data, list of employees, etc.
+
+* **Resource server**: Pleo APIs provides access to the protected resources.
+
+* **Client** : Third-party applications that the Developer Partner wants to integrate with Pleo.
+
+* **Authorisation server**: Pleo provides an OAuth implementation that fulfils the following:
+
+  * Allows clients to request access to resource servers.
+  * Helps resources owners to grant access to clients.
+
+## Use of OAuth in Pleo
+
+In Pleo, we provide an implementation of an OAuth authorisation server to help you with the following:
+
+* Integrate third-part applications with Pleo using OAuth as the authorisation method.
+
+* Use OAuth to access the Pleo APIs.
+
+## How to use OAuth?
+
+In order to integrate your application with Pleo using OAuth, you must perform the following:
+
+1. [Register your application](/docs/oauth-client-registration) and receive OAuth client credentials - client identifier and client secret.
+2. [Integrate an OAuth client library](/docs/implementing-the-oauth-client) in your application.
+3. [Configure your OAuth client](/docs/client-configuration) to work with Pleo's authorisation server.
+
+After completing these steps, users of your application could successfully and securely transition data from Pleo.
+
+***
+
+* [Table of Contents](#)
+
+* * [What is OAuth?](#what-is-oauth)
+  * [Roles](#roles)
+  * [Use of OAuth in Pleo](#use-of-oauth-in-pleo)
+  * [How to use OAuth?](#how-to-use-oauth)

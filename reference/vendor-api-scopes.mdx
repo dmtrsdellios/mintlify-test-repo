@@ -1,0 +1,17 @@
+---
+title: "Vendor API Scopes"
+description: "The following table specifies the scopes required to access the Vendors API endpoints:"
+---
+
+| Operation               | Scopes        |
+| ----------------------- | ------------- |
+| Create a new vendor     | vendors:write |
+| Fetch a list of vendors | vendors:read  |
+| Retrieve a vendor       | vendors:read  |
+| Update a vendor         | vendors:write |
+| Archive a vendor        | vendors:write |
+| Post a vendor status    | vendors:write |
+
+<Warning>
+  Hence, if any customer has multiple entities (Organisation level), they would need to use the `company_id` to send request to a specific entity of the organisation.
+</Warning>

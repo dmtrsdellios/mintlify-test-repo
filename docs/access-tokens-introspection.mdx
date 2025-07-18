@@ -1,0 +1,78 @@
+---
+title: "Access Tokens Introspection"
+description: "Suggest Edits"
+---
+
+The client might use the token introspection endpoint to to obtain information about access tokens. Clients can use this endpoint to check the validity of access tokens and find out other information, such as which resource and what scopes are associated with the token.
+
+| Environment | Token Introspection Endpoint URI                      |
+| ----------- | ----------------------------------------------------- |
+| Staging     | `https://auth.staging.pleo.io/oauth/token/introspect` |
+| Production  | `https://auth.pleo.io/oauth/token/introspect`         |
+
+### Introspection Request
+
+Token introspection endpoint uses basic client authentication, using client identifier and client secret.
+
+Client calls the introspection endpoint using **HTTP** `POST` request, with parameters sent as `application/x-www-form-urlencoded` data.
+
+| Parameter         | Description                                                                                                           |
+| ----------------- | --------------------------------------------------------------------------------------------------------------------- |
+| `token`           | \[REQUIRED] The string value of the token.                                                                            |
+| `token_type_hint` | \[OPTIONAL] A hint about the type of the token submitted for introspection, either `access_token` or `refresh_token`. |
+
+### Introspection Response
+
+The server responds with a JSON object in `application/json` format with the following top-level members.
+
+| Member                              | Description                                                                                                         |
+| ----------------------------------- | ------------------------------------------------------------------------------------------------------------------- |
+| `active`                            | Boolean indicator of whether or not the presented token is currently active.                                        |
+| `sub`                               | ID of a resource that this access token grants access to.                                                           |
+| `exp`                               | UNIX timestamp indicating when this token would expire.                                                             |
+| `iat`                               | UNIX timestamp indicating when this token was originally issued.                                                    |
+| `client_id`                         | Client identifier for the OAuth 2.0 client that requested this token.                                               |
+| `aud`                               | Service-specific string identifier or list of string identifiers representing the intended audience for this token. |
+| `iss`                               | String representing the issuer of this token.                                                                       |
+| `jti`                               | String identifier for the token.                                                                                    |
+| `urn:pleo:params:oauth:subject_urn` | Uniform Resource Name (URN) of a resource that this access token grants access to.                                  |
+
+### Example
+
+In this example, a client with a client identifier `s6BhdRkqt3` and a client secret `gX1fBat3bV` issues a token introspection request to introspect an access token with the value of `mF_9.B5f-4.1JqM`.
+
+```
+POST /oauth/token/introspect HTTP/1.1
+Host: auth.staging.pleo.io
+Accept: application/json
+Content-Type: application/x-www-form-urlencoded
+Authorization: Basic czZCaGRSa3F0MzpnWDFmQmF0M2JW
+
+token=mF_9.B5f-4.1JqM
+```
+
+**Introspection response**:
+
+```
+HTTP/1.1 200 OK
+Content-Type: application/json
+
+{
+  "active": true,
+  "client_id": "s6BhdRkqt3",
+  "sub": "b6e0abaf-0c69-4443-b59b-908cb6aabcce",
+  "urn:pleo:params:oauth:subject_urn": "urn:pleo:company:b6e0abaf-0c69-4443-b59b-908cb6aabcce",
+  "aud": "https://external.staging.pleo.io",
+  "iss": "pleo.staging",
+  "iat": 1720706356,
+  "exp": 1720707256,
+}
+```
+
+***
+
+* [Table of Contents](#)
+
+* * [Introspection Request](#introspection-request)
+  * [Introspection Response](#introspection-response)
+  * [Example](#example)

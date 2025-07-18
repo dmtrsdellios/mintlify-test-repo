@@ -1,0 +1,326 @@
+---
+title: "OAuth Implementation Reference Documentation"
+description: "Suggest Edits"
+---
+
+<Warning />
+
+Due to complexity of OAuth protocol and its numerous extensions, we do not recommend implementing OAuth clients from scratch. In this topic, we provide an overview of the protocol with example of it in action.
+
+## Obtaining Access Token Using Authorisation Code
+
+The OAuth flow (technically, authorisation code grant flow) consists of the following steps:
+
+1. **Initiate authorisation request**: The client creates an **authorisation request** and directs the user's browser to the authorisation endpoint of the Pleo authorisation server.
+2. **Granting or denying access**: The Pleo authorisation server confirms whether the user whether would like to be granted or denied access to the resources.
+3. **Authorisation response**: If the user would like to access the resources, the Pleo's authorisation server directs the user agent of the resource owner to the client's redirect endpoint and sends an **authorisation response** to the client. If the authorisation is granted, the response includes an authorisation code.
+4. **Access token request**: The client validates the authorisation response and generates an **access token request** using the authorisation code provided by Pleo.
+5. **Access token response**: The authorisation server replies with an **access token response**, which contains an access token and, optionally, a refresh token.
+
+## Authorisation Request
+
+To initiate an OAuth workflow:
+
+1. A client provides an element on the User Interface (UI) - usually, a **Connect to Pleo** button in their application.
+2. When a user of the client clicks this button, the OAuth client generates and collects several parameters, and generates an **authorisation request**.
+3. The user is redirected to the authorisation endpoint of the Pleo authorisation server: `{AUTHORIZATION_SERVER_URL}/oauth/authorize/`
+
+The client generates the authorisation request URI using the following parameters:
+
+| Parameter                       | Description                                                                                                                                                                                 |
+| ------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `response_type`                 | Must be set to `code`.                                                                                                                                                                      |
+| `client_id`                     | Pleo provided client identifier after client registration.                                                                                                                                  |
+| `redirect_uri`                  | (Optional) URI of one of client's registered redirection endpoints.                                                                                                                         |
+| `scope`                         | The scope of access request. Requested scope must form a subset of the scope that was registered for this client.                                                                           |
+| `state`                         | (Optional) An opaque value used by the client to maintain state between issuing an authorisation request and receiving an authorisation response.                                           |
+| `code_challenge`                | (PKCE) Code challenge — a value derived from code verifier using the chosen code challenge method. For more information, see [PKCE](/v0.2/docs/implementing-the-oauth-client-from-scratch). |
+| `code_challenge_method`         | (PKCE) Code challenge method. Must be set to `S256`. For more information, see [PKCE](/v0.2/docs/implementing-the-oauth-client-from-scratch) .                                              |
+| `urn_pleo_params_oauth_subject` | The subject urn returned as part of the claim in the session handover.                                                                                                                      |
+
+### PKCE
+
+Parameters marked with (PKCE) are defined in PKCE extension of the core OAuth protocol. They are mandatory, except for clients that don’t support PKCE, and were marked as `not supported` during client registration.
+
+<Info>
+  You can use free online tools, such as [https://tonyxu-io.github.io/pkce-generator/](https://tonyxu-io.github.io/pkce-generator/), to generate parameters defined by PKCE extension, for the purposes of testing and validating your OAuth client implementation.
+</Info>
+
+For full reference on PKCE, consult [RFC 7636](https://www.rfc-editor.org/rfc/rfc7636).
+
+## Authorisation Response
+
+This describes a typical authorisation response workflow:
+
+1. After receiving an authorisation request, the Pleo authorisation server displays the authorisation page to the user, showing information about the client and details of authorisation request, including the requested permissions.
+
+2. The user could either proceed with the authorisation request or discontinue the request. The result of the choice is conveyed back to the client in an **authorisation response**.
+   * If the response of the user is to proceed with the authorisation request, Pleo interacts with the resource owner. Then the authorisation server redirects the user agent of the resource owner to one of the previously registered redirect endpoints of the client.
+
+3. The client's redirect endpoint receives an authorisation response as an HTTP request; the authorisation response could either be a successful authorisation of access or an error.
+
+4. After receiving an authorisation response, the client validates it.
+
+   * If the authorisation response is valid and represents successful authorisation, the client might send an **access token request** to the Pleo authorisation server. This request contains the **authorisation code** received in the authorisation response.
+   * If the authorisation response represents an authorisation error (usually, because the end-user denied the authorisation request), or is invalid, the client might show a corresponding error message and might prompt the user to try the authorisation request again.
+
+### Authorisation Granted
+
+If the client is authorised access to the resource owner, a successful **authorisation response** contains the following parameters:
+
+| Parameter | Description                                                                                                                                                                                                                                                                                                                        |
+| --------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `code`    | The authorisation code generated by the Pleo authorisation server. The client uses this authorisation code in the access token request; it can be used only once.                                                                                                                                                                  |
+| `state`   | (Required, if the authorisation request contained a `state` parameter) The exact value of state parameter sent by the client in the authorisation request. If this value is present, must be validated by the client before generating an access token request. This can be used by the client to restore state after redirection. |
+
+### Authorisation Denied
+
+If the authorisation response represents an error or is invalid, the client must not generate an access token request, and should display a corresponding error message to the end-user.
+
+The **authorisation response** for an unsuccessful request contains the following parameters.
+
+| Parameter           | Description                                                                                                                                                |
+| ------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `error`             | A single error code, usually `access_denied`.                                                                                                              |
+| `state`             | (Required, if the authorisation request contained a `state` parameter) The exact value of state parameter sent by the client in the authorisation request. |
+| `error_description` | (Optional) Description of the error description to assist the developer of the client.                                                                     |
+| `error_uri`         | (Optional) An URI identifying a web page containing detailed description of the error.                                                                     |
+
+## Access Token Request (Authorisation Code Grant)
+
+An access token request is a HTTP request generated directly from the client and sent to the Pleo authorisation server (`{AUTHORIZATION_SERVER_URL}/oauth/token`), containing the following parameters:
+
+| Parameter       | Description                                                                                                                                                                                  |
+| --------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `grant_type`    | Must be set to `authorization_code`.                                                                                                                                                         |
+| `code`          | The authorisation code received from the authorisation server in the authorisation response.                                                                                                 |
+| `redirect_uri`  | Required, if the redirect\_uri parameter was included in the authorisation request. If yes, the value sent in this request must be identical with the one sent in the authorisation request. |
+| `code_verifier` | (PKCE) A code verifier value that was used to generate a code challenge.                                                                                                                     |
+
+<Info />
+
+## Access Token Response
+
+If the access token request is valid, the Pleo authorisation server returns an access token response, providing the following parameters, encoded as a JSON object:
+
+| Parameter       | Description                                                                                                                                                                                                                                                      |
+| --------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `access_token`  | The access token that is issued by the Pleo authorisation server. This token can be used to access endpoints provided by the resource servers. The validity of the access token is mentioned in the response — `expires_in` attribute mentions the lifespan.     |
+| `token_type`    | The type of access token. Only **bearer tokens** are supported by the Pleo authorisation server and resource servers.                                                                                                                                            |
+| `expires_in`    | The lifetime in seconds of the access token. An access token is valid for the duration specified in the `expires_in`parameter, after which it would be rejected by the resource servers. A new access token can be obtained automatically using a refresh token. |
+| `refresh_token` | The refresh token can be used to obtain new access tokens to replace expiring ones. The validity of a refresh token is not defined but is valid for at least **60 days**. After this time span, it is not guaranteed whether the token would be still valid.     |
+| `scope`         | (Optional) The scope of the access token. If not present, it is identical to the scope requested by the client in the authorisation request.                                                                                                                     |
+
+## Access Token Request (Refresh Token Grant)
+
+For security, access tokens have a relatively short lifespan and cannot be used to access APIs of the resource server after expiration. However, authorisation server may issue a refresh token along with the access token. A refresh token can be used to obtain a new access token to replace an expiring one.
+
+This is a typical workflow of a refresh access token request:
+
+1. The client detects that the access token is about to expire.
+2. The client performs an access token request using refresh token grant.
+3. The authorisation server replies with an access token response, which contains a new access token, and, optionally, a new refresh token.
+4. The client discards the old access token and the old refresh token.
+
+An access token request using refresh token grant uses the following parameters:
+
+| Parameter       | Value                                                     |
+| --------------- | --------------------------------------------------------- |
+| `grant_type`    | Must be set to `refresh_token`.                           |
+| `refresh_token` | Refresh token received in the last access token response. |
+
+The access token response contains a new access token and a new refresh token. After receiving an access token response, the client must discard the old access and the refresh tokens, and use the new ones instead.
+
+<Info />
+
+## Example
+
+The example used in this section utilises the registration data of the client, as described in [OAuth client registration](/docs/client-registration), and illustrates the entire workflow of generating an OAuth authorisation code grant, as well as refreshing an access token using the refresh token grant.
+
+### Authorisation Request
+
+A client implements a web page that serves as a starting point for initiating the authorisation with Pleo. In our example, this web page displays **Connect to Pleo** button. When a user clicks this button, the OAuth client library is activated.
+
+The OAuth client library then fills the parameters to generate an authorisation request with the following parameters:
+
+| Parameter                       | Example value                                         | Notice                                                                                             |
+| ------------------------------- | ----------------------------------------------------- | -------------------------------------------------------------------------------------------------- |
+| `response_type`                 | `code`                                                | Always `code`.                                                                                     |
+| `client_id`                     | `36e3b610-56d7-4d36-92c7-a003ca7bfc5f`                | Client identifier received during registration.                                                    |
+| `redirect_uri`                  | `https://client.example/callback`                     | One of the redirect URIs registered by this client.                                                |
+| `scope`                         | `test:test users:read`                                | A subset of scopes registered for use by this client.                                              |
+| `state`                         | `d5a2d4566e51a28ecb3b58841b39df`                      | An opaque value which helps restore the client context later.                                      |
+| `code_verifier` (not sent)      | `wo8H_PzaG9eH6_wycgwJmGcYG-wdEkm5VulQBCJvA7I`         | (PKCE) Generated randomly, only used once per each authorisation request. Kept secret until later. |
+| `code_challenge`                | `bV7Y93L9KPvF-1R0TN2iDeZrHEm2D5OflR3O_Hf5oRQ`         | (PKCE) Generated from `code_verifier` using `S256` code challenge method.                          |
+| `code_challenge_method`         | `S256`                                                | (PKCE) Always `S256`.                                                                              |
+| `urn_pleo_params_oauth_subject` | urn:pleo:company:123e4567-e89b-12d3-a456-426614174000 | The subject urn returned as part of the claim in the session handover.                             |
+
+<Info />
+
+The OAuth library then performs a HTTP redirect to the Pleo authorisation server, thus executing an authorisation request. This can be done, for example, using HTTP 302 status code with the `Location` header containing the URL of the Pleo authorisation endpoint with all the parameters.
+
+An example of a HTTP redirect from the client to the authorisation server:
+
+<CodeGroup>
+  ```Text HTTP
+  HTTP/1.1 302 Found
+  Location: https://auth.pleo.io/oauth/authorize
+            ?response_type=code
+            &client_id=36e3b610-56d7-4d36-92c7-a003ca7bfc5f
+            &redirect_uri=https%3A%2F%2Fclient.example%2Fcallback
+            &scope=test%3Atest+users%3Aread
+            &state=d5a2d4566e51a28ecb3b58841b39df
+            &code_challenge=bV7Y93L9KPvF-1R0TN2iDeZrHEm2D5OflR3O_Hf5oRQ
+            &code_challenge_method=S256
+  ```
+</CodeGroup>
+
+### Authorisation Response
+
+The user’s browser is redirected to the Pleo authorisation server, which performs the necessary user authentication and interacts with the resource owner to authorise the “Example Client”. If the user is granted authorisation, the authorisation server redirects the user’s browser back to the client, specifically to the redirect endpoint of the client.
+
+<CodeGroup>
+  ```Text HTTP
+  HTTP/1.1 302 Found
+  Location: https://client.example/callback
+            ?code=SplxlOBeZQQYbYS6WxSbIA
+            &state=d5a2d4566e51a28ecb3b58841b39df
+  ```
+</CodeGroup>
+
+The client redirect endpoint is controlled by the OAuth client library, which can then proceed to generate an access token request with the parameters it received in the authorisation response.
+
+| Parameter | Received value                   | Notice                                                                                                                                               |
+| --------- | -------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `code`    | `SplxlOBeZQQYbYS6WxSbIA`         | Authorisation code issued by the authorisation server. This authorisation code is used in the access token request. The code is for single-use only. |
+| `state`   | `d5a2d4566e51a28ecb3b58841b39df` | Opaque value from the authorisation request sent back by the authorisation server. Must be recognised and validated by the client.                   |
+
+If `state` is present, the client compares it to a known value that it has sent during the authorisation request, to make sure they match. It can also use this value to restore its own state.
+
+### Access Token Request (Authorisation Code Grant)
+
+The OAuth client library performs an access token request: an authenticated request to receive an access token in exchange of the authorisation code received in the authorisation response.
+
+The access token request rely on client authentication, which is performed using the `Basic` HTTP authentication scheme, defined in [RFC 7617](https://www.rfc-editor.org/rfc/rfc7617).
+
+The following parameters are included in an access token request:
+
+| Parameter       | Example value                                 | Notice                                                                                                     |
+| --------------- | --------------------------------------------- | ---------------------------------------------------------------------------------------------------------- |
+| `grant_type`    | `authorization_code`                          | Always `authorization_code` in authorisation code grant.                                                   |
+| `code`          | `SplxlOBeZQQYbYS6WxSbIA`                      | Authorisation code received in the authorisation response.                                                 |
+| `redirect_uri`  | `https://client.example/callback`             | The same redirect URI as the one that was used in the authorisation request.                               |
+| `code_verifier` | `wo8H_PzaG9eH6_wycgwJmGcYG-wdEkm5VulQBCJvA7I` | (PKCE) Code verifier generated before the authorisation request, now revealed to the authorisation server. |
+
+<CodeGroup>
+  ```Text HTTP
+  POST /oauth/token HTTP/1.1
+  Host: auth.pleo.io
+  Authorization: Basic MzZlM2I2MTAtNTZkNy00ZDM2LTkyYzctYTAwM2NhN2JmYzVmOjcwNzcxZjNjYmY0NzJiYTkxNmFlZmQyMWJlOWM3YQ==
+  Content-Type: application/x-www-form-urlencoded
+
+  grant_type=authorization_code
+  &code=SplxlOBeZQQYbYS6WxSbIA
+  &redirect_uri=https%3A%2F%2Fclient%2Eexample%2Fcallback
+  &code_verifier=wo8H_PzaG9eH6_wycgwJmGcYG-wdEkm5VulQBCJvA7I
+  ```
+</CodeGroup>
+
+<Info>
+  * The request parameters are sent using `application/x-www-form-urlencoded` content type, and not `application/json`.
+  * Mapping between these parameters and the configuration options provided by OAuth client implementation, depend on the choice of the the software. Consult the documentation provided by your chosen implementation of OAuth client.
+</Info>
+
+### Access Token Response
+
+After receiving and validating the access token request, the authorisation server responds back to the client with the access token response.
+
+<CodeGroup>
+  ```Text HTTP
+  HTTP/1.1 200 OK
+  Content-Type: application/json;charset=UTF-8
+  Cache-Control: no-store
+  Pragma: no-cache
+
+  {
+    "access_token": "MTZhNjExbTR2MXI0bjRiNDgyMjZrOTU4NTg2YzNl",
+    "token_type": "Bearer",
+    "expires_in": 3600,
+    "refresh_token": "tGzv3JOkF0XG5Qx2TlKWIA"
+  }
+  ```
+</CodeGroup>
+
+The client can now can perform API requests using the access token. In addition, the client stores the access token and observes its lifespan. Once expired, the old access and the refresh tokens are replaced by the new one (or discarded, if no new refresh token is present).
+
+### Access Token Request (Refresh Token Grant)
+
+A new access token can be obtained to replace an expiring one, using a refresh token grant:
+
+| Parameter       | Value                    | Notice                                                                                |
+| --------------- | ------------------------ | ------------------------------------------------------------------------------------- |
+| `grant_type`    | `refresh_token`          | Always `refresh_token` in refresh token grant.                                        |
+| `refresh_token` | `tGzv3JOkF0XG5Qx2TlKWIA` | Refresh token received in the last access token response. This can be used only once. |
+
+<CodeGroup>
+  ```Text HTTP
+  POST /oauth/token HTTP/1.1
+  Host: auth.pleo.io
+  Authorization: Basic MzZlM2I2MTAtNTZkNy00ZDM2LTkyYzctYTAwM2NhN2JmYzVmOjcwNzcxZjNjYmY0NzJiYTkxNmFlZmQyMWJlOWM3YQ==
+  Content-Type: application/x-www-form-urlencoded
+
+  grant_type=refresh_token
+  &refresh_token=tGzv3JOkF0XG5Qx2TlKWIA
+  ```
+</CodeGroup>
+
+After receiving a new access token and, optionally, a new refresh token, the client must discard the old ones.
+
+### Authorisation Server URL
+
+When configuring authorisation and token endpoints, substitute the `{AUTHORIZATION_SERVER_URL}` with the base URL of the Pleo authorisation server in the environment that you are developing for.
+
+| Environment | Authorisation Server URL       |
+| ----------- | ------------------------------ |
+| Staging     | `https://auth.staging.pleo.io` |
+| Production  | `https://auth.pleo.io`         |
+
+## Reference Documentation
+
+For brevity, we omit minor details. For full reference, consult the following documents:
+
+* D. Hardt, [**The OAuth 2.0 Authorization Framework**](https://www.rfc-editor.org/rfc/rfc6749.html), RFC 6749, October 2012
+* M. Jones, D. Hardt, [**The OAuth 2.0 Authorization Framework: Bearer Token Usage**](https://www.rfc-editor.org/rfc/rfc6750.html), RFC 6750, October 2012
+* J. Reschke, **[The 'Basic' HTTP Authentication Scheme](https://www.rfc-editor.org/rfc/rfc7617)**, RFC 7617, September 2015
+* N. Sakimura, Ed., [**Proof Key for Code Exchange by OAuth Public Clients**](https://www.rfc-editor.org/rfc/rfc7636), RFC 7636, September 2015
+
+***
+
+* [Table of Contents](#)
+
+* * [Obtaining Access Token Using Authorisation Code](#obtaining-access-token-using-authorisation-code)
+
+  * [Authorisation Request](#authorisation-request)
+    * [PKCE](#pkce)
+
+  * [Authorisation Response](#authorisation-response)
+
+    * [Authorisation Granted](#authorisation-granted)
+    * [Authorisation Denied](#authorisation-denied)
+
+  * [Access Token Request (Authorisation Code Grant)](#access-token-request-authorisation-code-grant)
+
+  * [Access Token Response](#access-token-response)
+
+  * [Access Token Request (Refresh Token Grant)](#access-token-request-refresh-token-grant)
+
+  * [Example](#example)
+
+    * [Authorisation Request](#authorisation-request-1)
+    * [Authorisation Response](#authorisation-response-1)
+    * [Access Token Request (Authorisation Code Grant)](#access-token-request-authorisation-code-grant-1)
+    * [Access Token Response](#access-token-response-1)
+    * [Access Token Request (Refresh Token Grant)](#access-token-request-refresh-token-grant-1)
+    * [Authorisation Server URL](#authorisation-server-url)
+
+  * [Reference Documentation](#reference-documentation)

@@ -1,0 +1,34 @@
+---
+title: "Overview"
+---
+
+# Overview
+
+The Chart of Accounts API enables you to manage the chart of accounts recorded in Pleo.
+
+## What is an Account?
+
+An account represents a type of account in the chart of accounts; the chart of accounts is the customer's index of all financial accounts maintained in an ERP/accounting system. Hence, an account enables a customer to accurately bookkeep their accounting entries in the correct account in their ERP/accounting system.
+
+## How is an Account Associated with a Category?
+
+A category explains the purpose for which an expense has been incurred. For example, a hotel accommodation is booked for a company event using the Pleo card; hence, the **Travel > Accommodation (Hotel, Airbnb)** category is assigned to this expense.
+
+For the purpose of bookkeeping, categories are mapped with an account in the chart of accounts. Assignment of categories help in allocating the expense to the correct account in the ERP/accounting system.
+
+<Info />
+
+## Account Management
+
+The Chart of Accounts API allows you to perform various operations on accounts, such as creating, retrieving, updating, and deleting accounts. Each account is identified by a unique `accountId`.
+
+* An account exists in the external ERP/accounting system, but not in Pleo: the integration sends a request to the `POST Create a new account` endpoint to create the corresponding record in Pleo.
+* Details of an account have been updated in the ERP/accounting system: the integration sends a request to the `PUT Update an account` endpoint to modify the details. Also, when an account is linked with accounting entries, it cannot be deleted. It can only be archived through this endpoint.
+* Search for an account by its account ID: the integration must send a request to the `GET Retrieve an account in Pleo by its ID` endpoint.
+* An account exists in Pleo, but not in the external ERP/accounting system: the integration sends a request to the `DELETE Delete an account` endpoint.
+  <Info />
+* Apply specific filters to retrieve a list of matching accounts: the integration sends a request to the `POST Fetch a list of accounts` endpoint.
+
+## Rate Limits
+
+The APIs have a rate limit of 600 requests per minute.

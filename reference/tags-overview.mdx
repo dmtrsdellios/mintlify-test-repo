@@ -1,0 +1,50 @@
+---
+title: "Overview"
+description: "Tags imply cost centres. When you assign tags to an accounting entry, it helps in allocating the correct cost centres to the expense. For example, an expense of the  category is recorded in Pleo. This specific accounting entry is assigned the  tag. Assignment of tags helps in assessing the amount of cost incurred for specific reasons."
+---
+
+## Important Terminologies
+
+Here are a few terminologies to understand tags, especially in the context of Pleo:
+
+| Tag Group                                                                                                                                                                                                                                    | Tag                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    | Dimension Values                                                                                                                                           |
+| -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Tag group is a collection of tags. For example, a tag group is a **Department** and it includes Sales, Marketing, and IT. Each individual value is a specific tag; hence, Sales, Marketing, or IT is a tag indicating a specific department. | Tags are actual cost allocations. For example, if **Projects** is a tag group, **Project A** and **Project B** are individual tags. To explain a tag, we use dimensions; these are like attributes that are crucial in understanding a tag. Attributes of a tag (dimensions) represent column headings in a table, implying they are relevant for all tags of a tag group. And tags are like rows in a table that must contain the dimension values. For example, each project would have a project name and project code. **Project name** and **Project code** are important attributes of each tag. | The value mentioned for each dimension is a **Dimension Value**. For example, project name of Project A is **Open Banking** and project code is **24689**. |
+
+## Characteristics of Tags Managed in Pleo
+
+* Pleo assigns **IDs** to tag groups and tags for correct identification.
+* If you are using an ERP/accounting system that supports the tags capability, then for synchronisation of tags between the external ERP/accounting system and Pleo, the integration would send requests to the Tags API endpoints.
+* If the external ERP/accounting system does not support inherent tags capability, then you can create custom spreadsheets in CSV format for export of tags from Pleo to the ERP/accounting system.
+* You can assign a maximum of **five** tags to an accounting entry. An accounting entry might have tags related to projects, office locations, internal company structure.
+* A user can only see non-archived tag groups.
+
+## How are Tags Different from Accounts and Categories?
+
+**Accounts** and **categories** represent **chart of accounts**, where each accounting entry is allocated a specific category; this is helpful in comprehensive financial reporting and analysis. For example, accounting entries could be allocated different categories — card purchase, refund, per diem, and out-of-pocket expenses. For more information on different categories of accounting entries, see [Expense Types](/docs/expense-types).
+
+Whereas, **tags** imply cost centres that are helpful in associating each expense with a cost object, like attributing an expense to a departmental cost or the expense was incurred as part of a budget reserved for specific project initiatives.
+
+## Tag Groups Object
+
+| Object        | Type      | Description                                                                                                      |
+| ------------- | --------- | ---------------------------------------------------------------------------------------------------------------- |
+| **archived**  | *boolean* | The tag group is no longer used.                                                                                 |
+| **code**      | *string*  | External identifier of the Tag group / Dimension used for mapping to accounting system                           |
+| **companyID** | *string*  | Unique identifier of the company the Tag Group belongs to                                                        |
+| **createdAt** | *string*  | Creation date and time. *Example*: 2023-08-23T03:11:48.000Z                                                      |
+| **id**        | *string*  | Unique identifier of Tag Group (generated on creation)                                                           |
+| **metadata**  | *string*  | Place for API users to store flexible data. Example:`{"externalExtraId":"f302f9ec-6c17-11ee-b962-0242ac120002"}` |
+| **name**      | *string*  | Projects User readable name of Tag Group                                                                         |
+| **updatedAt** | *string*  | Date and time of the last update. *Example*: 2023-08-23T03:11:48.000Z                                            |
+
+### Tags Object
+
+| Object        | Type      | Description                                                                                                        |
+| ------------- | --------- | ------------------------------------------------------------------------------------------------------------------ |
+| **archived**  | *boolean* | This Tag is no longer used                                                                                         |
+| **code**      | *string*  | External identifier of the Tag                                                                                     |
+| **createdAt** | *string*  | Creation date and time. *Example*: 2023-08-23T03:11:48.000Z                                                        |
+| **groupId**   | *string*  | Unique identifier of the Tag Group this Tag belongs to                                                             |
+| **name**      | *string*  | User readable name that is used for the possible value within a tag group on an expense *Example*: lunch allowance |
+| **updatedAt** | *string*  | Date and time of the last update *Example*: 2023-08-23T03:11:48.000Z                                               |

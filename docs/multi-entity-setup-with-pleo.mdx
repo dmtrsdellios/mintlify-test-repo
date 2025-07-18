@@ -1,0 +1,40 @@
+---
+title: "Multi-Entity Setup with Pleo"
+description: "Suggest Edits"
+---
+
+This topic describes the difference between a company and an organisation and how Pleo supports businesses that have multiple subsidiaries.
+
+## Difference between Company and Organisation
+
+| Company                                                                                                                                                                                                   | Organisation                                                                                                                                                                                                                                                                                                                                                                                                                                                   |
+| --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| A single entity of a business, identified by a `company_id` maintained in Pleo. For example, a company named Alexey Software has a single entity and operates from a single location, the United Kingdom. | Multiple entities of a business, identified by `organisation_id` maintained in Pleo. For example, Love Creme Brulee is an organisation that has multiple subsidiaries and operates in different regions of Europe - Netherlands, Germany, and Belgium. The organisation Love Creme Brulee is assigned an `organisation_id` and each entity is assigned a `company_id`. An admin of Love Creme Brulee would have the privileges to view details of each entity. |
+
+## How Pleo Supports Organisations?
+
+We have implemented **multi-entity support** for organisations to optimally use Pleo as their spend management platform; a single Pleo account might have multiple entities with the following:
+
+* Different accounting entries for each entity
+* Different employees and vendors for each entity
+* Different integrations for each entity
+
+## Company and Organisation Specific Integrations
+
+* **Third-party ERP/accounting** integrations with Pleo could be connected at the company level, implying `company_id` is used when connecting a Pleo account with a third-party ERP/accounting application.
+* For **HRIS/user-management** integrations, the Pleo account could be connected both at organisation and company levels. If a business has only a single entity, HRIS integrations for this specific customer are done at the company level.
+
+<Info />
+
+## Related Topic
+
+For more information on this, refer [here](https://help.pleo.io/en/support/solutions/articles/103000254598-what-is-multi-entity-management-).
+
+***
+
+* [Table of Contents](#)
+
+* * [Difference between Company and Organisation](#difference-between-company-and-organisation)
+  * [How Pleo Supports Organisations?](#how-pleo-supports-organisations)
+  * [Company and Organisation Specific Integrations](#company-and-organisation-specific-integrations)
+  * [Related Topic](#related-topic)

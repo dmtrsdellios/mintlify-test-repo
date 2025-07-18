@@ -1,0 +1,6 @@
+---
+title: "Create an Export Job Event"
+description: "post deprecatedhttps://external.pleo.io/v1/export-job-events"
+---
+
+The Export Job Events imply the different status of an Export Job through the export lifecycle. Use this endpoint to create a new status. For example, started event implies the export job is initiated. The existing Export Job Events are as follows: - started: An export job is initiated. This allows the integration service to start processing the export job items. - failed: The export job has failed when an irrecoverable error happens and this could have happened while processing the export job items. - completed: The export job items have been successfully exported. - completed\_with\_errors: The export job items have been processed, although some of them could not be exported.

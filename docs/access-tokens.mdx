@@ -1,0 +1,33 @@
+---
+title: "Overview"
+description: "Suggest Edits"
+---
+
+In OAuth, access tokens are opaque strings that allow a client to access protected resources.
+
+The exact format of access and refresh tokens is left out of scope of OAuth specification, allowing the authorisation server to use the representation that fits their needs the best. Hence, the client must not assume any specific implementation and should treat access and refresh tokens as opaque bits of information.
+
+<Info>
+  * The validity of an access token is mentioned in the access token response.
+  * The validity of a refresh token is not defined, but it is valid for at least **60 days**. However, it cannot be guaranteed whether the refresh token would be valid after 60 days.
+  * If you are using an expired refresh token to get a new access token, all active refresh tokens are invalidated to prevent any replay attack.
+</Info>
+
+The client might store the access tokens obtained from the authorisation server, and supply them in requests to resource servers, **but they must not peek inside the text content of the tokens**.
+
+<Warning>
+  Do not rely on the content of access and refresh tokens in the integration of your client application with Pleo. Their format is not guaranteed and can be changed without notice. This can break the interoperability of your application with Pleo.
+</Warning>
+
+# Frequently Asked Questions
+
+1. **How long is the access token valid**? The validity of an access token is specified in the `expires_in` parameter of the response.
+2. **What should you do if the access token has expired**? The client sends a new access token request using the refresh token grant. The Pleo authorisation server provides a new access token and a new refresh token.
+3. **After receiving the new access token and refresh token, are the old access token and refresh token valid?** No, you must discard the old access token and the refresh token.
+4. **How long is a refresh token valid?** The validity of a refresh token is not defined. It is valid for at least 60 days. However, it cannot be guaranteed whether the refresh token would be valid after 60 days.
+5. **What should you do if the refresh token has expired?** You must reinitiate a new OAuth flow with an authorisation request.
+
+***
+
+* [Table of Contents](#)
+* * [Frequently Asked Questions](#frequently-asked-questions)

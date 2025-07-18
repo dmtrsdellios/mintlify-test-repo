@@ -1,0 +1,37 @@
+---
+title: "Vendor Tagging in Export Items"
+description: "You can add vendors in an export item, only when:"
+---
+
+* The specific company has synchronised the list of vendors existing in their ERP/accounting system with their Pleo account. For more information, see [Vendors API](/reference/vendors-api-overview).
+* The integration supports the capability of vendor tagging. If yes, `vendorBasedBookkeeping` is set to `True` in the `POST Create a new export job` endpoint.
+
+## Vendor Tagging Enabled for Specific Expenses
+
+You can tag vendors in an export item, when the expense belongs to any of the following types:
+
+* `card_purchase`
+* `fee`
+* `chargeback`
+* `refund`
+* `cashback`
+* `invoice`
+* `invoice_payment`
+* `overdraft`
+
+## Vendor Tagging | Mandatory or Optional
+
+Based on what the bookkeeping method is, tagging vendors in an export item is either **mandatory** or **optional**:
+
+* If the bookkeeping method is `accounts_payable`, tagging vendors in an export item is **mandatory** — this helps to bookkeep the expense in the correct vendor account as maintained in the external ERP/accounting system. If `vendorBasedBookkeeping` is enabled, the `GET Get Export Items` endpoint includes vendor and bookkeeping data points.
+* If the bookkeeping method is `journal`, tagging vendors in an export item is **optional**.
+
+<Info>
+  - If there is any problem in bookkeeping the export item to the correct vendor account (like, when the vendor `code` is not matching) in the ERP/accounting system, the integration must send a request to the `PUT Update Export Job Items` endpoint with `failureReason` specifying that vendor record could not be identified and `failureReasonType` set to `accounting_system_validation_failure`.
+
+  - In the Export API Version 2, you might find the `supplier` object, instead of `vendor`. To bookkeep the export item using the `supplier` object, ensure that any of the following information is present to find the appropriate vendor in the ERP/accounting system:
+
+    * `code` matching the supplier ID as recorded in the accounting system
+    * `account` matching the supplier account number as recorded in the accounting system
+    * `taxIdentifier` matching the tax identifier of the supplier as recorded in the accounting system
+</Info>

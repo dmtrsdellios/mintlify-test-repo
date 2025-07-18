@@ -1,0 +1,58 @@
+---
+title: "Overview"
+description: "Pleo as a spend management platform can be integrated with other third-party ERP/accounting applications or Human Resources Information Systems (HRIS) to make it more optimised for our customers. These applications make Pleo more dynamic and are useful in automating workflows and supporting additional functionalities."
+---
+
+All the applications that are available for integration with your Pleo account are listed in the App Marketplace.
+
+## Installations
+
+An installation is an integration between an application (client) and a Pleo account. When an application is integrated with Pleo for a user's account, an installation is created.
+
+As an external developer, you can manage the integrations using the [Installations API](/reference/getclientinstallation). The API allows you to create, update, and delete installations, as well as retrieve information about them.
+
+The installation has a `metadata` attribute that the application uses to store additional information about the installation. This can be useful for storing configuration settings or other data specific to the installation.
+
+<Info />
+
+### Listing New Applications in the App Marketplace
+
+If you are an external developer partner interested in listing a new application in the app marketplace, either you must contact your developer partner manager or submit this [form](https://forms.gle/ZzGPAs9vaZsTTibN6).
+
+<Warning />
+
+### Creating Installations
+
+Installations can be authorised either by OAuth or API Keys:
+
+* **OAuth**: If you are using OAuth 2.0 as your authorisation method, the installation would automatically complete when the OAuth process is finished. However, if the integration that you have installed requires configurations for activation (configuration set to `True` for activation), you might need to send a request to the [`POST` Activate the installation for a client](/reference/activatemyinstallation) endpoint to set the status to `ACTIVATED`. Otherwise, the installation is created with the status `ACTIVATED` by default (configuration is set to `False`).
+
+* **API Key**: You must use the API key that the application has displayed on the configuration page. However, in this method, after successful authorisation, the integration is not automatically installed. Hence, to complete the installation, you must send a request to the [`POST` Create a Client Installation](/reference/createclientinstallation) endpoint to create the installation in `ACTIVATED` status.
+
+### Installation Status
+
+There are the following possible status of an installation:
+
+| Status                | Description                                                                                                                                                                                                                                                                                                                                                                                                         |
+| --------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `AUTHORIZED`          | The user has completed the Pleo authorisation process, but the installation is not yet active or ready for use.                                                                                                                                                                                                                                                                                                     |
+| `ACTIVATED`           | The installation is active and ready for use.                                                                                                                                                                                                                                                                                                                                                                       |
+| `INACTIVE`            | The installation is inactive and cannot be used. This status occurs after multiple failed attempts to connect to the target application. It also happens if the authorisation method used for the installation is no longer valid, for example using expired refresh tokens for the integration.                                                                                                                    |
+| `PENDING_INTEGRATION` | This status occurs when the integration is synchronising or performing other background tasks. When an installation is in progress, the integration synchronises the user's Pleo account with the target application, so that tax codes, tags, and vendors are all similar in both Pleo and the third-party application. The user must not disconnect the application in this state; else there would be data loss. |
+
+## Installations Workflow
+
+The following section explains a typical application installation workflow:
+
+1. In the Pleo application > **Settings** page, users click the application that they want to integrate with their Pleo account.
+
+2. Based on the authorisation method, the integration is either created in the `ACTIVATED` status or is in the `AUTHORIZED` status:
+
+   * If the authorisation method is **OAuth**, the following happens:
+
+     * If the configuration is set to `False`: the application is integrated with Pleo and the integration is in the `ACTIVATED` status.
+     * If the configuration is set to `True`: the integration is in the `AUTHORIZED` status; for activation, the integration sends a request to the `POST Activate the Installation for a Client` endpoint.
+
+   * If the authorisation method is **API Keys**, the application is in the `AUTHORIZED` state after successful authorisation. Post authorisation, the integration sends a request to the `POST Create a Client Installation` endpoint. The installation is complete and the application is in the `ACTIVATED` status.
+
+<Info />

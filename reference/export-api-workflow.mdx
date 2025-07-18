@@ -1,0 +1,40 @@
+---
+title: "Export API Workflow"
+description: "This topic explains the Export API workflow:"
+---
+
+<Info />
+
+1. A user selects specific accounting entries for export from Pleo to an external ERP/accounting system.
+
+2. The accounting entries are transformed to exportable data items and packaged as **export items**.
+
+3. At this stage, an export job is initiated in the `pending` status.
+
+4. If the external ERP/accounting system sends a request to the `GET Get a list of Export Jobs` with `company_id` and `pending` status in the query parameters, the endpoint response sends a list of export jobs awaiting in the `pending` status; the endpoint response also contains the corresponding export job IDs. If no export job is available in the `pending` status, no response is sent.
+
+5. The export job now begins to transfer the **export items** from Pleo to the ERP/accounting system.
+
+6. Simultaneously, the external ERP/accounting system sends a request to the `POST Create Export Job Event` endpoint with `started` as the value for `event` parameter.
+
+   This changes the state of the `pending` export job to `in_progress` state.
+
+7. At the end of the export, the export job could have either of the following status:
+
+   * `failed`: The export items could not be transferred to the ERP/accounting system. If the export job has `failed`, `failureReason` and `failureReasonType` are additional parameters that the ERP/accounting system specify while sending a request to the `POST Create Export Job Event` endpoint to update the status of the corresponding export job.
+
+   * `completed`: The export job is successfully completed and all the export items have been transferred to the ERP/accounting system.
+
+   * `completed_with_errors`: Some export items have been exported, while some could not.
+
+     > 💡 **Note**: If the export job has `completed` status, each accounting entry is assigned an `exportedAt`, `externalId`, and `externalUrl` - this information is returned in the `GET Get Export Job Items` endpoint response.
+
+The Pleo application also accordingly updates the export workflow status:
+
+* All successfully exported accounting entries are moved to the **Exported** tab.
+* The accounting entries that could not be exported remain in the **Export queue**.
+
+<Info>
+  - If the external ERP/accounting system sends a request to the `GET Get Export Items` endpoint, specifying a certain export job ID, it returns a list of accounting entries that have been selected for export in a specific export job. The endpoint response informs you about the accounting entries that are selected for export in an export job.
+  - Send a request to the `PUT Update Export Job Items` to modify details of accounting entries that either have been successfully exported to the ERP/accounting system (for `successful` status), not yet exported (for `pending` and `in_progress` status), or not exported (for `failed` and `abandoned` status).
+</Info>

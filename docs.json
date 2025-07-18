@@ -1,115 +1,340 @@
 {
   "$schema": "https://mintlify.com/docs.json",
   "theme": "mint",
-  "name": "Mint Starter Kit",
+  "name": "Introduction",
   "colors": {
-    "primary": "#16A34A",
-    "light": "#07C983",
-    "dark": "#15803D"
+    "primary": "#b2535f",
+    "light": "#b2535f",
+    "dark": "#b2535f"
   },
-  "favicon": "/favicon.svg",
+  "favicon": "/favicon.ico",
   "navigation": {
     "tabs": [
       {
         "tab": "Guides",
         "groups": [
           {
-            "group": "Getting started",
+            "group": "Get Started",
             "pages": [
-              "index",
-              "quickstart",
-              "development"
+              "docs/pleo-introduction",
+              "docs/multi-entity-setup-with-pleo",
+              "docs/inviting-users-to-pleo-and-assigning-user-roles",
+              "docs/pleo-apis-by-solution",
+              "docs/session-handover",
+              "docs/connecting-pleo-with-erpaccounting-system",
+              {
+                "group": "Configuring Customer Account in Pleo",
+                "pages": [
+                  "docs/configuring-customer-account-in-pleo",
+                  "docs/configuring-tax-codes",
+                  "docs/configuring-categories",
+                  "docs/configuring-tags"
+                ]
+              }
             ]
           },
           {
-            "group": "Customization",
+            "group": "Build with Pleo",
             "pages": [
-              "essentials/settings",
-              "essentials/navigation"
+              "docs/build-with-pleo"
             ]
           },
           {
-            "group": "Writing content",
+            "group": "Authentication and Authorisation",
             "pages": [
-              "essentials/markdown",
-              "essentials/code",
-              "essentials/images",
-              "essentials/reusable-snippets"
+              "docs/authentication-authorisation-introduction",
+              {
+                "group": "OAuth 2.0",
+                "pages": [
+                  "docs/oauth-20",
+                  "docs/oauth-client-registration",
+                  "docs/implementing-oauth-client-using-a-library",
+                  "docs/client-configuration",
+                  {
+                    "group": "Access Tokens",
+                    "pages": [
+                      "docs/access-tokens",
+                      "docs/access-tokens-introspection"
+                    ]
+                  },
+                  "docs/oauth-implementation-reference-documentation"
+                ]
+              },
+              {
+                "group": "API Keys",
+                "pages": [
+                  "docs/api-keys",
+                  "docs/for-partners",
+                  "docs/integrated-api-key-generation",
+                  "docs/authenticating"
+                ]
+              }
             ]
           },
           {
-            "group": "AI tools",
+            "group": "Glossary",
             "pages": [
-              "ai-tools/cursor",
-              "ai-tools/claude-code",
-              "ai-tools/windsurf"
+              "docs/terms-and-definitions",
+              "docs/generic-terms-in-pleo",
+              "docs/expense-types",
+              "docs/accounting-entries-export-terms"
             ]
           }
         ]
       },
       {
-        "tab": "API reference",
+        "tab": "API Reference",
         "groups": [
           {
-            "group": "API documentation",
+            "group": "About the Pleo API",
             "pages": [
-              "api-reference/introduction"
+              "reference/api-introduction",
+              "reference/metadata-1",
+              "reference/request-ids-1",
+              "reference/pagination",
+              "reference/api-response-codes-errors-1"
             ]
           },
           {
-            "group": "Endpoint examples",
+            "group": "Export API",
             "pages": [
-              "api-reference/endpoint/get",
-              "api-reference/endpoint/create",
-              "api-reference/endpoint/delete",
-              "api-reference/endpoint/webhook"
+              "reference/export-api-overview",
+              "reference/export-api-scopes",
+              "reference/vendor-tagging-in-export-items",
+              "reference/multi-currency-configuration",
+              "reference/export-api-workflow",
+              {
+                "group": "Export API (v2)",
+                "pages": [
+                  "reference/createexportjobeventv2-2"
+                ]
+              },
+              {
+                "group": "Export API (v3)",
+                "pages": [
+                  "reference/createexportjobeventv3"
+                ]
+              },
+              {
+                "group": "Export Items (v1)",
+                "pages": [
+                  "reference/getexportitemsv1-1"
+                ]
+              },
+              {
+                "group": "Export API (v1)",
+                "pages": [
+                  "reference/createexportjobeventv1-1"
+                ]
+              }
+            ]
+          },
+          {
+            "group": "Tags API",
+            "pages": [
+              "reference/tags-overview",
+              "reference/scopes-2",
+              {
+                "group": "Tag Groups",
+                "pages": [
+                  "reference/getaggregatedtaggroups"
+                ]
+              },
+              {
+                "group": "Tags",
+                "pages": [
+                  "reference/searchaggregatedtags"
+                ]
+              }
+            ]
+          },
+          {
+            "group": "Tax Code API",
+            "pages": [
+              "reference/tax-codes-overview",
+              "reference/scopes-3",
+              {
+                "group": "Tax Codes",
+                "pages": [
+                  "reference/createtaxcode"
+                ]
+              }
+            ]
+          },
+          {
+            "group": "App Marketplace API",
+            "pages": [
+              "reference/marketplace-overview",
+              "reference/installations-completions-migration",
+              {
+                "group": "Installations",
+                "pages": [
+                  "reference/completeinstallationexternalclientonlyidempotently"
+                ]
+              },
+              {
+                "group": "External Clients",
+                "pages": [
+                  "reference/introspect"
+                ]
+              }
+            ]
+          },
+          {
+            "group": "Employees API",
+            "pages": [
+              "reference/employees-api-overview",
+              "reference/companies-api-overview",
+              "reference/employees-api-scopes",
+              "reference/companies-api-scopes",
+              {
+                "group": "Employees",
+                "pages": [
+                  "reference/search-employees-1"
+                ]
+              }
+            ]
+          },
+          {
+            "group": "Chart of Accounts API",
+            "pages": [
+              "reference/chart-of-accounts-api-overview",
+              "reference/chart-of-accounts-api-scopes",
+              {
+                "group": "Accounts",
+                "pages": [
+                  "reference/createaccountv1"
+                ]
+              }
+            ]
+          },
+          {
+            "group": "Webhook Subscriptions API",
+            "pages": [
+              "reference/overview-webhooks",
+              "reference/webhooks-authentication-authorisation",
+              {
+                "group": "Subscriptions",
+                "pages": [
+                  "reference/subscriptions"
+                ]
+              },
+              "reference/webhook-events"
+            ]
+          },
+          {
+            "group": "Companies API",
+            "pages": [
+              "reference/search-for-companies",
+              {
+                "group": "Companies",
+                "pages": [
+                  "reference/search-for-companies"
+                ]
+              }
+            ]
+          },
+          {
+            "group": "Vendors API",
+            "pages": [
+              "reference/vendors-api-overview",
+              "reference/vendor-api-scopes",
+              {
+                "group": "Vendors API",
+                "pages": [
+                  "reference/postvendor-1"
+                ]
+              }
+            ]
+          },
+          {
+            "group": "Pleo.io API (DEPRECATED)",
+            "pages": [
+              "reference/notice",
+              "reference/authentication-legacy",
+              "reference/attribute-explanations",
+              "reference/request-ids",
+              "reference/errors",
+              "reference/versioning",
+              "reference/faq-1",
+              "reference/open-api",
+              {
+                "group": "HealthCheck",
+                "pages": [
+                  "reference/healthstatus"
+                ]
+              },
+              {
+                "group": "Expenses",
+                "pages": [
+                  "reference/getexpense"
+                ]
+              },
+              {
+                "group": "Tag Groups",
+                "pages": [
+                  "reference/gettaggroups"
+                ]
+              },
+              {
+                "group": "Company",
+                "pages": [
+                  "reference/getcompanybalance"
+                ]
+              },
+              {
+                "group": "Receipts",
+                "pages": [
+                  "reference/getexpensereceipts"
+                ]
+              },
+              {
+                "group": "Employees",
+                "pages": [
+                  "reference/getemployee-1"
+                ]
+              },
+              {
+                "group": "Accounts",
+                "pages": [
+                  "reference/getaccount"
+                ]
+              },
+              {
+                "group": "Experimental",
+                "pages": [
+                  "reference/getaccountgroupsv1_1"
+                ]
+              },
+              {
+                "group": "Teams",
+                "pages": [
+                  "reference/createteam"
+                ]
+              },
+              {
+                "group": "Tax Codes",
+                "pages": [
+                  "reference/gettaxcode"
+                ]
+              },
+              {
+                "group": "Export Items (v1)",
+                "pages": [
+                  "reference/getexportitemsv1"
+                ]
+              },
+              {
+                "group": "Export API (v1)",
+                "pages": [
+                  "reference/createexportjobeventv1"
+                ]
+              }
             ]
           }
         ]
       }
-    ],
-    "global": {
-      "anchors": [
-        {
-          "anchor": "Documentation",
-          "href": "https://mintlify.com/docs",
-          "icon": "book-open-cover"
-        },
-        {
-          "anchor": "Community",
-          "href": "https://mintlify.com/community",
-          "icon": "slack"
-        },
-        {
-          "anchor": "Blog",
-          "href": "https://mintlify.com/blog",
-          "icon": "newspaper"
-        }
-      ]
-    }
+    ]
   },
-  "logo": {
-    "light": "/logo/light.svg",
-    "dark": "/logo/dark.svg"
-  },
-  "navbar": {
-    "links": [
-      {
-        "label": "Support",
-        "href": "mailto:hi@mintlify.com"
-      }
-    ],
-    "primary": {
-      "type": "button",
-      "label": "Dashboard",
-      "href": "https://dashboard.mintlify.com"
-    }
-  },
-  "footer": {
-    "socials": {
-      "x": "https://x.com/mintlify",
-      "github": "https://github.com/mintlify",
-      "linkedin": "https://linkedin.com/company/mintlify"
-    }
-  }
+  "logo": "/images/c16b9ea-pleo.svg"
 }

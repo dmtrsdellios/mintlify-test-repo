@@ -1,0 +1,55 @@
+---
+title: "Webhook Events"
+description: "This topic lists the webhook events emitted in the Pleo ecosystem:"
+---
+
+* `v1.export.job-created`: When a user clicks **Export** in the Pleo application, an export job is initiated in `pending` status — the `v1.export.job-created` event is generated. If the integration has subscribed to this event, a notification is sent to the configured endpoint.
+  ```
+  {
+    "webhook-id": "msg_p5jXN8AQM9LWM0D4loKWxJek",
+    "webhook-timestamp": 1614265330,
+    "webhook-signature": "v1,g0hM9SsE+OTPJTGt/tmIKtSyZlE3uFJELVlNIOLJ1OE=",
+    "payload": {
+      "data": {
+        "companyId": "b5fdaec1-1b43-4b62-996a-b0471c3bb336",
+        "createdAt": "2025-05-23T15:21:32Z",
+        "createdBy": "e3118b03-691c-4bd4-944e-1a9c1f1031b7",
+        "expiresIn": 3600,
+        "id": "b4c4d068-ebbe-45b7-b562-2f16f0deb8b9",
+        "numberOfItems": 1,
+        "status": "pending"
+      },
+      "eventId": "a257a31e-e8a6-4c36-a98d-451250e5b5c4",
+      "eventType": "v1.export-job.created"
+    }
+  }
+  ```
+* `v1.vendor.created`: When any vendor is created in Pleo (the record is not yet existing in the ERP/accounting system), a webhook event `v1.vendor.created` is generated. If the integration has subscribed to this event, a notification is sent to the configured endpoint.
+  ```
+  {
+    "webhook-id": "msg_p5jXN8AQM9LWM0D4loKWxJek",
+    "webhook-timestamp": 1614265330,
+    "webhook-signature": "v1,g0hM9SsE+OTPJTGt/tmIKtSyZlE3uFJELVlNIOLJ1OE=",
+    "payload": {
+      "data": {
+        "id": "c27ed4d6-3d3d-458e-8f3f-735fdf32a3bc",
+        "companyId": "00000000-0000-0000-0000-000000000000",
+        "name": "Pleo Technologies GmbH",
+        "country": "DE",
+        "registrationNumber": "",
+        "taxRegistrationNumber": "DE36538686",
+        "code": null,
+        "state": "DRAFT",
+        "defaultCurrency": "EUR",
+        "createdBy": "22aff90a-a53d-4f0c-851f-dd4cc85ac947",
+        "createdAt": "2025-02-21T10:05:43.530450712Z",
+        "updatedAt": "2025-02-21T10:05:43.530450712Z",
+        "deletedAt": null
+      },
+      "eventType": "v1.vendor.created",
+      "eventId": "13d8550d-dd22-46e9-ae18-c171846ba373"
+    }
+  }
+  ```
+
+<Info />

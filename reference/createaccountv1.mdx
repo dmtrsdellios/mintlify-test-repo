@@ -1,0 +1,6 @@
+---
+title: "Create a new account"
+description: "post https://external.pleo.io/v1/chart-of-accounts"
+---
+
+The integration sends a request to this endpoint to create a corresponding account in Pleo for any new record created in the external ERP/accounting system. The request will fail if an account with the same `externalId` and `companyId` already exists in Pleo.

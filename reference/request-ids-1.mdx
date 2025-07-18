@@ -1,0 +1,18 @@
+---
+title: "Request IDs"
+description: "Every API request you send to the Pleo platform is assigned a unique identifier. Pleo automatically generates this ID when it receives your request and includes it in the HTTP response headers. This ID acts as a fingerprint for the specific API call within Pleo."
+---
+
+The `request-Id` is returned in each API response, be it a successful or failed attempt; you might inspect the response header to check the details.
+
+## Why Request IDs are Important?
+
+The request ID is the identifier of an API request and thus, helps in troubleshooting:
+
+* **Troubleshooting**: When you contact Pleo support about issues you have encountered with an API request (for example an error, unexpected behaviour, or missing data), our support and engineering team can instantly check the internal logs and identify the API call with the `request-Id`. This significantly reduces the time spent in diagnosing and resolving the problem.
+* **Correlation**: Request IDs help you to correlate events; you might store the `request-Id` in your application logs along with the request and the response details. This enables you to trace the request lifecycle, especially if it triggers asynchronous processes or webhooks.
+
+## How to Use Request ID?
+
+* **Logging**: We recommend you to store the `request-Id` in your application logs, along with additional details like timestamp when the request was sent, the request parameters with sensitive and confidential information being masked, and the response status code. This helps you to track the request lifecycle.
+* **Contacting Pleo Support**: When you are reporting an issue to the Pleo support team (contact [Pleo support](https://pleohelp.freshdesk.com/en/support/)) about a specific API request, please specify the `request-Id` along with the context — this helps us to instantly identify the problem and serve you better.

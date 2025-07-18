@@ -1,0 +1,108 @@
+---
+title: "Pagination"
+---
+
+# Overview
+
+Pagination is a technique used to break big datasets into manageable chunks; this helps you to consume the data in a structured manner — if the server returns the entire dataset in a single API response, it could be difficult to read and process the information. In Pleo, we follow offset and cursor based pagination techniques.
+
+## Offset-Based Pagination
+
+In this method, a starting point (`offset`) and a `limit` are mentioned to retrieve data subsets in a paginated format. In **Offset** based pagination, the usual parameters sent in an API **request** are:
+
+* `offset`: Indicates the starting point of the dataset by specifying the number of records to be skipped.
+* `limit`: Indicates the maximum number of records to be returned in an API response.
+
+For example, when an integration sends a request to an API endpoint, it must mention the maximum number of records (`limit`) to be returned in the response and must also specify the number of records to skip (`offset`) before starting the count.
+
+<Info />
+
+**Request message example**:
+
+```
+https://external.pleo.io/v2/export-jobs?limit=10&offset=10
+```
+
+## Cursor-Based Pagination
+
+In this method, a unique identifier or **cursor** indicates the last item returned in a query and this cursor determines the starting point of the next dataset. In **Cursor** based pagination, the usual parameters sent in an API **request** are:
+
+* `limit`: Specifies the maximum number of records to be returned in an API response.
+* `before`: Paginates backwards, implying the records before the cursor would be retrieved in an API response.
+* `after`: Retrieves records starting after the cursor.
+
+For example, when an integration sends a request to an API endpoint, the server returns the data along with a cursor (`startCursor`/`endCursor`) pointing to either the first or the last item on the page. To continue to the next page, the integration sends the cursor to the server — the cursor acts as the indicator to return data starting after the cursor.
+
+<Info />
+
+**Request message example**:
+
+```
+https://external.pleo.io/v2/export-jobs?limit=10&after=ThisIsTheEndCursor
+```
+
+## API Response | Pagination Attributes
+
+In an API response, the following attributes are included to help you understand what data has been returned from the entire dataset. Based on these details, you can send the subsequent request with appropriate parameters to retrieve the next set of information you require:
+
+* `before`: Indicates the starting point of the current dataset returned in an API response.
+* `after`: Indicates the last item of the current dataset returned in an API response.
+* `limit`: Indicates the maximum number of records returned in an API response.
+* `offset`: Indicates the number of items skipped, implying the starting point of the current dataset.
+* `startCursor`: Indicates the starting point of the dataset returned in an API response.
+* `endCursor`: Indicates the last item of the dataset returned in an API response.
+* `hasNextPage`: If the value is `true`, it implies there is at least one page of data after the dataset returned in the current API response.
+* `hasPreviousPage`: If the value is `true`, it implies there is at least one page of data before the dataset returned in the current API response.
+* `total`: The total number of records returned in an API response.
+
+<Info />
+
+**Response message example**:
+
+```
+{
+  "data": [
+    {
+      "address": {
+        "addressLine1": "string",
+        "addressLine2": "string",
+        "country": "string",
+        "locality": "string",
+        "postalCode": "string",
+        "region": "string"
+      },
+      "id": "497f6eca-6276-4993-bfeb-53cbbbba6f08",
+      "name": "string",
+      "organizationId": "7bc05553-4b68-44e8-b7bc-37be63c6d9e9"
+    }
+  ],
+  "pagination": {
+    "currentRequestPagination": {
+      "after": "string",
+      "before": "string",
+      "limit": 30,
+      "offset": 10,
+      "parameters": {
+        "property1": ["string"],
+        "property2": ["string"]
+      },
+      "sortingKeys": ["status"],
+      "sortingOrder": ["ASC"]
+    },
+    "pageInfo": {
+      "hasNextPage": true,
+      "hasPreviousPage": false,
+      "startCursor": "cursor123",
+      "endCursor": "cursor456",
+      "total": "120"
+    }
+  }
+}
+```
+
+## Additional Settings | Sorting
+
+Often, sorting is used along with pagination to determine the order in which the items in a dataset are retuned:
+
+* `sortingKeys`: Mentions specific sorting parameters to sort the records returned in an API response.
+* `sortingOrder`: Mentions the direction of sorting the records — ascending or descending order.

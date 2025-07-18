@@ -1,0 +1,19 @@
+---
+title: "Errors"
+---
+
+<Warning />
+
+## Error Handling & Responses
+
+Pleo uses conventional HTTP response codes to indicate the success or failure of an API request. In general: Codes in the 2xx range indicate success. Codes in the 4xx range indicate an error that failed given the information provided (e.g., a required parameter was omitted, a charge failed, etc.). Codes in the 5xx range indicate an error with Pleo's servers (these are rare).
+
+Some 4xx errors that could be handled programmatically - include an error code that briefly explains the error reported.
+
+| Error code | Description of error code                                 |
+| ---------- | --------------------------------------------------------- |
+| 200        | All good, everything went as expected!                    |
+| 401        | Unauthorised - No valid Token has been provided           |
+| 403        | Forbidden - The Token does not have sufficient permission |
+| 404        | The requested resource does not exist                     |
+| 500        | Internal server error                                     |

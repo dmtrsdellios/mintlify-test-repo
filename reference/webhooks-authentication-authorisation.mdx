@@ -1,0 +1,173 @@
+---
+title: "Authentication and Authorisation"
+description: "To access the Subscriptions API, you can use any of the following (provided during the initial integration set up of the customer):"
+---
+
+* JWT token (OAuth)
+* API key
+
+ℹ️ **Important**:
+
+* The **JWT token** or the **API key** is generated either for a company or an organisation owning different subsidiaries in a multi-entity set up.
+* In your subsequent subscription requests, use the same JWT token (OAuth) or the API key (provided during the initial configuration). This implies that for the subsequent requests, you receive webhook notifications for the same entity that Pleo has authorised. For example, Newday is a credit card organisation. It owns Newday Technology Limited and Newday Cards Ltd. Pleo has generated API keys for Newday. So, you would receive webhook notifications for both Newday Technology Limited and Newday Cards Ltd.
+
+## Authentication Methods for Webhooks Verification
+
+Pleo supports the following:
+
+* **HMAC Signature-Based**: We support and recommend this authentication method. To learn more, click [here](/reference/authentication-3#hmac-signature-based-authentication).
+* **Basic authentication**: If the integration does **not** support **HMAC signature-based** authentication, use this method as an alternative option. To learn more, click [here](/reference/authentication-3#basic-authentication).
+* **Header-based authentication**: If the integration does **not** support **HMAC signature-based** authentication, you can use header-based authentication as another alternative option. To learn more, click [here](/reference/authentication-3#header-based-authentication).
+
+### HMAC Signature-Based Authentication
+
+In this authentication method, webhook-timsetamp and webhook-signature are sent in the request headers as unique parameters of the webhook notification.
+
+```
+{
+    "webhook-id":"msg_p5jXN8AQM9LWM0D4loKWxJek",
+    "webhook-timestamp":1614265330,
+    "webhook-signature":"v1,g0hM9SsE+OTPJTGttmIKtSyZlE3uFJELVlNIOLJ1OE="
+ }
+```
+
+### Basic Authentication
+
+In this method of authentication, the integration can send `username` and `password` in the request header of [Create a Subscription](/reference/createsubscription) request. The credentials are also included in the webhook notification sent to the configured endpoint, enabling the consumer system to validate the authenticity of the notification using the **Basic Authentication** mechanisms. **Endpoint**: POST /v1/subscriptions\
+**Request message**:
+
+```
+{
+    "status": "ACTIVE",
+    "eventTypes": ["v1.export-job.created"],
+    "endpointUrl": "<https://b7baf754-64e1-4469-ba23-fd7b5988eaf7.mock.pstmn.io/webhook>",
+    "endpointAuth": {
+        "type": "BASIC",
+        "credentials": {
+            "username": "your_username",
+            "password": "your_password"
+        }
+    },
+    "customHeaders": { 
+        "Content-Type": "application/json" 
+    }
+}
+```
+
+**Response message**:
+
+```
+{
+    "data": {
+        "id": "c21a9d0e-f31b-4302-890d-751d400bbe21",
+        "status": "ACTIVE",
+        "eventTypes": [
+            "v1.export-job.created"
+        ],
+        "endpointUrl": "<https://b7baf754-64e1-4469-ba23-fd7b5988eaf7.mock.pstmn.io/webhook>",
+        "createdAt": "2025-03-24T16:28:23.090589Z",
+        "updatedAt": "2025-03-24T16:28:23.090589Z",
+			   "endpointAuth": {
+			       "type": "BASIC",
+			       "credentials": {
+			           "username": "your_username",
+			           "password": "your_password"
+			       }
+			   },
+			   "customHeaders": { 
+			       "Content-Type": "application/json" 
+			   }         
+    }
+}
+```
+
+### Header-based Authentication
+
+In this method, the integration can include custom header in the request message to [Create a Subscription](/reference/createsubscription) endpoint. The headers can include API keys, bearer tokens, or any other value that the consumer system requires for authenticating the incoming webhook notification. **Endpoint**: POST /v1/subscriptions:\
+**Request message**:
+
+```
+{
+   "status":"ACTIVE",
+   "eventTypes":[
+      "v1.export-job.created"
+   ],
+   "endpointUrl":"<https://b7baf754-64e1-4469-ba23-fd7b5988eaf7.mock.pstmn.io/webhook>",
+   "customHeaders":{
+      "x-api-key":"xxxxx",
+      "Authorization":"Bearer your_token",
+      "Content-Type":"application/json",
+      "User-Agent":"Chrome/129.0"
+   }
+}
+```
+
+**Response message**
+
+```
+{
+   "data": {
+      "id": "2bfde1d4-b3be-4135-960a-914b41ed2dcc",
+      "status": "ACTIVE",
+      "eventTypes": [
+         "v1.export-job.created"
+      ],
+      "endpointUrl": "<https://b7baf754-64e1-4469-ba23-fd7b5988eaf7.mock.pstmn.io/webhook>",
+      "createdAt": "2025-03-24T16:19:23.113886Z",
+      "updatedAt": "2025-03-24T16:19:23.113886Z"
+   },
+   "endpointAuth": {
+      "type": "NONE"
+   },
+   "customHeaders": {
+      "x-api-key": "xxxxx",
+      "Authorization": "Bearer your_token",
+      "Content-Type": "application/json",
+      "User-Agent": "Chrome/129.0"
+   }
+}
+```
+
+#### **Configuring Custom Headers in New Subscription Request**
+
+While creating a new subscription request, the integration can send a custom header in the API request. For example, the integration can specify the content-type or the user-agent it wants to receive in the API response.
+
+**Endpoint**: [Create a Subscription](/reference/createsubscription)
+
+**Request message**:
+
+```
+{
+    "status": "ACTIVE",
+    "eventTypes": ["v1.export-job.created"],
+    "endpointUrl": "<https://b7baf754-64e1-4469-ba23-fd7b5988eaf7.mock.pstmn.io/webhook>",
+    "customHeaders": {
+		    "Content-Type": "application/json",
+		    "User-Agent": "Chrome/129.0"
+		}
+}
+```
+
+**Response message**:
+
+```
+{
+   "data": {
+      "id": "2bfde1d4-b3be-4135-960a-914b41ed2dcc",
+      "status": "ACTIVE",
+      "eventTypes": [
+         "v1.export-job.created"
+      ],
+      "endpointUrl": "<https://b7baf754-64e1-4469-ba23-fd7b5988eaf7.mock.pstmn.io/webhook>",
+      "createdAt": "2025-03-24T16:19:23.113886Z",
+      "updatedAt": "2025-03-24T16:19:23.113886Z"
+   },
+   "endpointAuth": {
+      "type": "NONE"
+   },
+   "customHeaders": {
+      "Content-Type": "application/json",
+      "User-Agent": "Chrome/129.0"
+   }
+}
+```

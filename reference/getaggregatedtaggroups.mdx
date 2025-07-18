@@ -1,0 +1,6 @@
+---
+title: "Returns all tag groups for given company in an aggregated format"
+description: "get https://external.pleo.io/v0/aggregations/tag-groups"
+---
+
+You need to supply either the company\_id or the organization\_id query parameter. If you supply both, the company\_id will be used. If you supply neither, the request will fail. If you supply the company\_id, the response will contain only the tag groups for that company. If you supply the organization\_id, the response will contain the tag groups for all companies in the organization. If you supply the company\_id and the organization\_id, the response will contain only the tag groups for the company.

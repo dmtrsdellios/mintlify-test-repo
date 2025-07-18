@@ -1,0 +1,84 @@
+---
+title: "Overview"
+---
+
+> 💡**Note**: Please note the following:
+>
+> * V0 would be deprecated in 2025. Closer to the deprecation date, we would inform you.
+> * V1 is operational, but we recommend you to upgrade to V2 — the user attribute in `GET Export Items` response would be null, if there is no user/employee associated with the export item.
+
+# Overview
+
+The Export API enables you to export the accounting data managed in Pleo to other external ERP/accounting systems.
+
+<Info />
+
+Some of the key features and benefits of this API include:
+
+* The accounting and the bookkeeping information contained in the accounting entries are transformed to exportable data items and packaged as **export items**. This is done to ensure accurate and transparent transmission of accounting entries from Pleo to the external ERP/accounting system.
+* Managing the export workflow with `Export Jobs` and `Export Job Events` (for more information, see #What are Export Jobs? and #What are Export Job Events?).
+* Tracking the progress of each accounting entry included in an export job through **export job items** — an **export job item** tracks the export progress of a specific accounting entry in an export job.
+
+## What are Export Jobs?
+
+An `Export Job` is the task that manages the export workflow and provides insight with the additional information:
+
+* Status and progress of the export workflow
+* Export history logs
+* Orchestrates the entire workflow, like locking the accounting entries being exported from any modification
+* Orchestrates the change of status in expenses
+
+## What are Export Job Events?
+
+The **Export Job Events** cause change in status of an export job. When an event is triggered, the status of the corresponding export job is impacted. This is returned in the `status` parameter of the `export-jobs` endpoint. For example, a specific export job is showing `failed` status; the reason of failure is also mentioned to understand what caused the problem and how it could be resolved.
+
+The possible values are:
+
+* `pending`: The accounting entries are queued for export.
+* `failed`: The accounting entries could not be exported to the external accounting system.
+* `completed`: The accounting entries have been successfully exported to the external accounting system.
+* `completed_with_errors`: The export workflow is complete, yet few accounting entries could not be exported to the external accounting system.
+
+## Webhook Notifications for Status Change in Export Workflow
+
+When an **Export Job Event** is triggered, a webhook notification is generated and sent to the external accounting system. Thus, this helps the ERP/accounting system to act in accordance with the event status. For example, if you have subscribed to the `v2.export.job-created` event, a webhook notification is sent to the external system, notifying that an export workflow is already initiated and a specific set of accounting entries are being currently exported from Pleo to the target system. For more information, see [Webhooks](/reference/overview-webhooks).
+
+<Info />
+
+## Vendor Tagging in Export Items
+
+Adding vendors in an export item is a new functionality that is available only when the following criteria are met:
+
+* The specific company has synchronised the list of vendors existing in their ERP/accounting system and their Pleo account. For more information, see # Vendors API\[https\://developers.pleo.io/reference/vendors-api-overview].
+
+* The integration supports the capability of vendor tagging. If yes, `vendorBasedBookkeeping` is set to `True` in the `POST Create a new export job` endpoint.
+
+* Tagging vendors in an export item is available for the following expenses:
+
+  * `card_purchase`
+  * `fee`
+  * `chargeback`
+  * `refund`
+  * `cashback`
+  * `invoice`
+  * `invoice_payment`
+  * `overdraft`
+
+Based on what the bookkeeping method is, tagging vendors in an export item is either **mandatory** or **optional**:
+
+* If the bookkeeping method is `accounts_payable`, tagging vendors in an export item is **mandatory** — this helps to bookkeep the expense in the correct vendor account as maintained in the external ERP/accounting system. If `vendorBasedBookkeeping` is enabled, the `GET Get Export Items` endpoint includes vendor and bookkeeping data points.
+* If the bookkeeping method is `journal`, tagging vendors in an export item is **optional**.
+
+<Info>
+  i. If there is any problem in bookkeeping the export item to the correct vendor account (like, when the vendor `code` is not matching) in the ERP/accounting system, the integration must send a request to the `PUT Update Export Job Items` endpoint with `failureReason` specifying that vendor record could not be identified and `failureReasonType` set to `accounting_system_validation_failure`. ii. In the Export API Version 2, you might find the `supplier` object, instead of `vendor`. To bookkeep the export item using the `supplier` object, ensure that any of the following information is present to find the appropriate vendor in the ERP/accounting system:
+</Info>
+
+```
+- `code` matching the supplier ID as recorded in the accounting system  
+- `account` matching the supplier account number as recorded in the accounting system  
+- `taxIdentifier` matching the tax identifier of the supplier as recorded in the accounting system  
+```
+
+## Rate Limits
+
+The APIs have a rate limit of 600 requests per minute.

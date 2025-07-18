@@ -1,0 +1,33 @@
+---
+title: "Authenticating Using API Keys"
+description: "Suggest Edits"
+---
+
+## Using API Keys in Curl
+
+Specify the API key in the`-u` or `--user` flag. The password is an empty string.
+
+Here is an example:
+
+```
+curl --request GET -sL \\
+     --url '<https://external.pleo.io/v1/installations/me>'\\
+     -u 'enter the API key here'
+```
+
+## Using API Keys in a Graphical User Inteface (GUI) Tool
+
+Here, we are using **Postman** for reference:
+
+1. In the `Authorization` header of the request, select **Basic Auth** as the **Auth Type**.
+2. In the `Username`, enter the API key.
+3. In the `Password`, do not enter any value.
+
+![](/images/docs/4d699f9041966526499f15ad21feb76378a5ac46203b7653b6b2abd35e9a7719-Screenshot_2024-11-27_at_16.07.01.png)
+
+***
+
+* [Table of Contents](#)
+
+* * [Using API Keys in Curl](#using-api-keys-in-curl)
+  * [Using API Keys in a Graphical User Inteface (GUI) Tool](#using-api-keys-in-a-graphical-user-inteface-gui-tool)

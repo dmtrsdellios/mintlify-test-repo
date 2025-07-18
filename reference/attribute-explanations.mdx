@@ -1,0 +1,28 @@
+---
+title: "Attribute explanations"
+---
+
+<Warning />
+
+Here you can find the attribute keys from all endpoints explained
+
+| Key                             | Type                                    | Description                                                                                                                                                           |
+| ------------------------------- | --------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| id                              | *String*                                | The unique identifier of the requested item.                                                                                                                          |
+| employeeId                      | *String*                                | The unique identifier of the Pleo user.                                                                                                                               |
+| departmentId                    | *String*                                | The unique identifier of the Pleo team.                                                                                                                               |
+| performedAt                     | date, ISO-8601 yyyy-mm-ddTHH:mi:ss.SSSZ |                                                                                                                                                                       |
+| amountOriginal: value           | number                                  | The value of the expense.                                                                                                                                             |
+| amountOriginal: currency        | *String*                                | The currency of the expense.                                                                                                                                          |
+| note                            | *String*                                | Note included in Pleo for the expense.                                                                                                                                |
+| type                            | *String*                                | Type of the expense. CARD, PERSONAL\_TRANSFER, BILL\_INVOICE, LOAD, MANUAL, MANUAL\_TRANSFER, PLEO\_INVOICE                                                           |
+| cardTransaction: state          | *String*                                | State of the transaction AUTHORIZATION, AUTHORIZATION\_REVERSAL, CHARGE\_BACK, CHARGE\_BACK\_REVERSAL, PRESENTMENT, SECOND\_PRESENTMENT, REFUND, LOAD, UNLOAD, FAILED |
+| cardTransaction: authorisedAT   | yyyy-mm-ddTHH:mi:ss.SSSZ                |                                                                                                                                                                       |
+| cardTransaction: settledAt      | yyyy-mm-ddTHH:mi:ss.SSSZ                |                                                                                                                                                                       |
+| cardTransaction: reversedAt     | yyyy-mm-ddTHH:mi:ss.SSSZ                |                                                                                                                                                                       |
+| cardTransaction: merchant: name | *String*                                |                                                                                                                                                                       |
+| accountId                       | *String*                                | The unique identifier of the account (category) attached to the expense                                                                                               |
+| tagIds                          | *String*                                | The unique identifiers of the tags attached to the expense                                                                                                            |
+| receiptIds                      | *String*                                | The unique identifiers of the receipts attached to the expense                                                                                                        |
+| status                          | *String*                                | Export state of the expense as reflected in Pleo. NOT\_EXPORTED, QUEUED, EXPORTING, EXPORTED                                                                          |
+| createdAt                       | yyyy-mm-ddTHH:mi:ss.SSSZ                | Date format specifying when the expense was created                                                                                                                   |

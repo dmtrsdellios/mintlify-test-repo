@@ -1,0 +1,185 @@
+---
+title: "Overview"
+---
+
+<Info />
+
+When you are integrating with Pleo, you might want to receive real-time notifications for events that occur in Pleo; these webhook notifications can help you organise and manage actions in your applications. The intent is to ensure seamless integration, data synchronisation across multiple applications, and automated workflows, eliminating the need of manual intervention.
+
+To receive webhook notifications, you must configure a receiving endpoint and register a subscription.
+
+<Warning />
+
+Here is an example for your understanding:
+
+When a user clicks **Export** in the Pleo application, the accounting data of a customer is exported to another application. And, the `v1.export-job.created `event is triggered. If you have subscribed to this event, webhook notifications are automatically sent to the endpoints you have configured. Hence, you do not need to poll `GET https://external.pleo.io/v2/export-jobs`.
+
+<Warning>
+  * set only one client (third-party application integrated with Pleo) per customer.
+  * subscribe to multiple events.
+</Warning>
+
+## How Webhooks Function?
+
+The following diagram explains the workflow among a customer, third-party integration (third-party application + target endpoint), and Pleo (Pleo APIs + Webhook):
+
+![](/images/reference/12669dc-Webhooks.png)
+
+<Info>
+  * **Step 4**: For reference information on **creating subscription for webhook notification**, see [here](/reference/createsubscription) .
+</Info>
+
+## Key Features of Pleo Webhooks
+
+* **Event subscription**: If you are a Developer Partner, you can subscribe to specific events in Pleo for which you want to be notified. For example, you can subscribe to the `v1.export.job-created` event, which is triggered when the customer's accounting data is exported to an external application.
+* **Real-time notifications**: When an event is triggered, it generates a webhook notification in real-time.
+* **Secure communication**: All webhook notifications are sent over HTTPS to ensure secured data transmission.
+* **Webhook verification**: The webhook signature and the timestamp mentioned in the request header are checked to verify the authenticity.
+
+## How to Set Up Webhook Notifications?
+
+Perform the following to configure webhook notifications:
+
+1. **Ensure access**: To subscribe to specific webhook events, you need access to the relevant API. In addition, you would also require the corresponding scopes essential to access the API. The scopes are already configured in the JWT token or the API key provided during the initial integration set up. For example, if you want to subscribe to export events, you need the `export-jobs:read` and `export-jobs write` scopes.
+
+<Warning />
+
+2. **Configure endpoints**: You must configure the endpoint URL(s) to which you want to send the webhook notifications. For more information, see [Configuring Receiving Endpoints](#configuring-receiving-endpoints).
+3. **Subscribe events**: Select the specific events for which you want to send webhook notifications. You can create a new subscription request through the `POST https://external.pleo.io/v1/subscriptions` endpoint. For more information, see [Create a subscription](/reference/createsubscription).
+4. **Secure endpoints**: We recommend that you set up verification for the incoming Pleo webhook notifications. This ensures protection from potential security threats. For more information, see [Verifying Webhooks](#verifying-webhooks) .
+
+## Configuring Receiving Endpoints
+
+Configure the endpoints to which you want to send webhook notifications. These endpoints must conform with the following:
+
+* Hypertext Transfer Protocol Secure (HTTPS) method
+* Available in the public domain
+* Accepts POST request with JSON payload
+
+**Sample Endpoint Configuration**
+
+```
+{
+  "status": "ACTIVE",
+  "eventTypes": [
+    "v1.export-job.created"
+  ],
+  "endpointUrl": "<https://b7baf754-64e1-4469-ba23-fd7b5988eaf7.mock.pstmn.io/webhook>",
+  "customHeaders": {
+    "Content-Type": "application/json",
+    "User-Agent": "Chrome/129.0"
+  }
+}
+```
+
+**Sample Endpoint Response**:
+
+```
+{
+  "data": {
+    "id": "2bfde1d4-b3be-4135-960a-914b41ed2dcc",
+    "status": "ACTIVE",
+    "eventTypes": [
+      "v1.export-job.created"
+    ],
+    "endpointUrl": "https://b7baf754-64e1-4469-ba23-fd7b5988eaf7.mock.pstmn.io/webhook",
+    "createdAt": "2025-03-24T16:19:23.113886Z",
+    "updatedAt": "2025-03-24T16:19:23.113886Z"
+  },
+  "endpointAuth": {
+    "type": "NONE"
+  },
+  "customHeaders": {
+    "Content-Type": "application/json",
+    "User-Agent": "Chrome/129.0"
+  }
+}
+```
+
+<Info />
+
+## Verifying Webhooks
+
+To ensure the authenticity of the webhook notifications generated from Pleo, we recommend you to verify the webhook signature and timestamp specified in the request header.
+
+### Source IP Addresses
+
+If your receiving endpoint is protected by a firewall, ensure that the IP addresses listed [here](https://docs.svix.com/receiving/source-ips) are whitelisted.
+
+## Configuring Webhooks During Integration
+
+For providing an optimised experience to customers, we recommend that you configure webhook subscriptions during the integration set up. Send a request to the `POST/v1 webhooks` endpoint.
+
+<Warning />
+
+## Webhook Notifications
+
+Once you have created the subscriptions, webhook notifications are automatically sent to the target endpoints. The request message sent to the receiving endpoints contains a HTTPS header and a JSON payload.
+
+### Sample Webhook Notification
+
+```
+{
+  "webhook-id": "msg_p5jXN8AQM9LWM0D4loKWxJek",
+  "webhook-timestamp": 1614265330,
+  "webhook-signature": "v1,g0hM9SsE+OTPJTGt/tmIKtSyZlE3uFJELVlNIOLJ1OE=",
+  "payload": {
+    "data": {
+      "companyId": "b5fdaec1-1b43-4b62-996a-b0471c3bb336",
+      "createdAt": "2025-05-23T15:21:32Z",
+      "createdBy": "e3118b03-691c-4bd4-944e-1a9c1f1031b7",
+      "expiresIn": 3600,
+      "id": "b4c4d068-ebbe-45b7-b562-2f16f0deb8b9",
+      "numberOfItems": 1,
+      "status": "pending"
+    },
+    "eventId": "a257a31e-e8a6-4c36-a98d-451250e5b5c4",
+    "eventType": "v1.export-job.created"
+  }
+}
+```
+
+<Info />
+
+#### **Request Header**
+
+| Key                 | Section | Type     | Description                                                                                                                                                    |
+| ------------------- | ------- | -------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `webhook-id`        | Header  | *string* | A unique message identifier of the webhook message. This identifier is unique across all messages, but will be the same when the same webhook is being resent. |
+| `webhook-timestamp` | Header  | *string* | The time when the webhook is generated. The time calculation follows [Unix time](https://en.wikipedia.org/wiki/Unix_time%5D).                                  |
+| `webhook-signature` | Header  | *string* | The Base64 encoded list of signatures (space delimited).                                                                                                       |
+
+#### **Request Payload**
+
+The request payload contains the following parameters:
+
+| Parameter       | Description                                                                                       |
+| --------------- | ------------------------------------------------------------------------------------------------- |
+| `companyId`     | Unique identifier of the company for which the webhook event is generated.                        |
+| `createdAt`     | Date and time when the event was created.                                                         |
+| `createdBy`     | Unique identifier of the user who created the event.                                              |
+| `expiresIn`     | The time when the export job expires. Time is calculated in seconds.                              |
+| `id`            | Unique identifier of the export job.                                                              |
+| `numberOfItems` | Number of accounting entries selected for export from Pleo to the external ERP/accounting system. |
+| `status`        | -The current execution status of the export job — `pending`: The export job is has started.       |
+| `eventId`       | Unique identifier of the webhook event.                                                           |
+| `eventType`     | The type of event generated.                                                                      |
+
+### Successful Webhook Notification Delivery
+
+If the configured endpoint has received the webhook notification, send a `2xx` response indicating successful delivery. Any other response code, including `3xx` imply failures in sending webhook notifications.
+
+### Webhook Notification Delivery Retries
+
+If the first attempt of delivering webhook notification to the configured endpoint fails, succeeding reattempts are made, based on the following schedule, with exponential backoff:
+
+* Immediately
+* 5 seconds
+* 5 minutes
+* 30 minutes
+* 2 hours
+* 5 hours
+* 10 hours
+* 10 hours (in addition to the preceding attempt)
+
+Hence, if a webhook notification has been successfully delivered after the third attempt, then it has reached the endpoint after 35 minutes 5 seconds of the first attempt.

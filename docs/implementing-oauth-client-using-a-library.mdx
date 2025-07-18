@@ -1,0 +1,45 @@
+---
+title: "Implementing OAuth Client Using a Library"
+description: "Suggest Edits"
+---
+
+Many open source libraries offer high-quality implementations of OAuth clients. They are available in a variety of programming languages, offering support for various web frameworks and database backends.
+
+<Info>
+  A list of open-source OAuth client libraries is available at [https://oauth.net/code/](https://oauth.net/code/).
+</Info>
+
+We strongly recommend using one of these libraries instead of implementing OAuth from scratch. Examples are:
+
+* **Java**: spring-security-oauth2-client, Apache OLTu
+* **Python**: authlib, Requests-OAuthlib
+* **JavaScript**: passport.js, oidc-client-js
+* **.NET**: Microsoft.Identity.Web
+
+## Implementing OAuth Client Using a Library
+
+Libraries providing OAuth implementation often allow customisation to some extent - allow to plug in custom implementations for front-end and back-end interfaces they provide.
+
+Most often, when using a library, a developer can:
+
+Benefits of using a library:
+
+* Configure the client with specific authorisation server: provide the authorisation and token endpoints, configure supported client authentication methods, and protocol extensions.
+* Provide the User Interface (UI) for initiating the authentication flow (**connect to Pleo** button), and connect it to functions and methods of the library that generate all necessary authentication request parameters.
+* Integrate the library with the web framework of choice to allow it to perform HTTP redirects.
+* Provide implementation for persistence backend, allowing the client library to store and retrieve parameters, such as `code_verifier` and `state`. Also, generate access and refresh tokens.
+* Provide custom UI for handling success and error responses from the authorisation server.
+* Listen to events emitted during flow and extend various stages.
+
+<Info />
+
+## Related Topics
+
+* [OAuth Implementation Reference Documentation](/docs/oauth-implementation-reference-documentation): Refer to this document to understand how the OAuth authentication method is implemented.
+
+***
+
+* [Table of Contents](#)
+
+* * [Implementing OAuth Client Using a Library](#implementing-oauth-client-using-a-library)
+  * [Related Topics](#related-topics)

@@ -1,0 +1,55 @@
+---
+title: "Multi Currency Configuration"
+description: "We support multi-currency, which enables you to maintain multiple accounts with Pleo in different currencies. The multi-currency configuration helps our customers to optimise foreign exchange and simplifies operations when they are working with revenue and spend in multiple currencies."
+---
+
+## Multi-Currency in Export API
+
+`contraAccount` object is returned in the endpoint response of `GET https://external.pleo.io/v3/export-items`, when the expense is any of the following types and it impacts the account balance:
+
+* `card_purchase`
+* `fee`
+* `cashback`
+* `refund`
+* `chargeback`
+* `direct_reimbursement`
+* `invoice_payment`
+* `card_invoice`
+* `atm_withdrawal`
+* `personal_spend`
+* `wallet_topup`
+* `wallet_unload`
+
+<Info />
+
+## Frequently Asked Questions
+
+1. If a customer has enabled multi-currency, can they still access the Export API version 2? No, the version 2 `GET Get Export Items` endpoint returns `400: Bad Request` error and displays the following:
+
+   ```
+   {
+   "type": "UNSUPPORTED_API_VERSION",
+   "message": "Upgrade to Export API v3 or higher: The API version you are trying to access does not support multi-currency wallets."
+   }
+   ```
+
+   This ensures accurate bookkeeping, as when multi-currency configuration is enabled, the integration must access the Export API version 3 for the correct export of accounting entries from Pleo to the external ERP/accounting system.
+
+2. Can an integration send a request to the Export API version 3 if multi-currency is not enabled? No, the version 3 `GET Get Export Items` endpoint returns `400: Bad Request` error and displays the following:
+
+   ```
+   {
+   "type": "missing_contra_accounts",
+   "message": "Contra accounts are not fully configured. Please map contra accounts in the Accounting settings."
+   }
+   ```
+
+3. What happens to an `in_progress` export job when `400: Bad Request` is returned in the `GET Get Export Items` endpoint? You can configure the integration to either fail the corresponding export job or wait until it expires.
+
+<Info />
+
+## Export API Version 3 URLs
+
+Production: [https://external.pleo.io](https://external.pleo.io) Staging: [https://external.staging.pleo.io](https://external.staging.pleo.io)
+
+<Info />

@@ -1,0 +1,80 @@
+---
+title: "Overview"
+---
+
+<Warning />
+
+This API enables you to synchronise the list of vendor records, applicable for your business, between the external ERP/accounting system and Pleo. This is crucial as this enables you to tag specific vendors to accounting entries, helping you in assessing the amount of expenses incurred per vendor.
+
+## What is a Vendor?
+
+A vendor is an individual or business entity that sells goods or services to customers.
+
+## Vendor Synchronisation between Pleo and ERP/Accounting System
+
+This is how vendor records are synchronised between Pleo and the ERP/accounting system:
+
+* For importing vendors from the ERP/accounting system to Pleo — the integration sends a request for each individual record to the `POST Create a New Vendor` endpoint.
+* Whenever, a new vendor is created in the accounting application, the integration sends a request to the `POST Create a New Vendor` endpoint — this creates the corresponding record in Pleo.
+
+<Info />
+
+* If and when any updates are made to a vendor account in the accounting application, the integration sends a request to the `PUT Update a Vendor` endpoint. This ensures that the vendor records in both the accounting system and Pleo are always in sync.
+* When any vendor is inactivated or deleted in the ERP/accounting system — the integrations sends a request to `POST Archive a Vendor` endpoint; the status is changed to `archive` state in Pleo.
+  <Info />
+* Similarly, when any vendor is unarchived and set to the `active` status in the ERP/accounting system — a request is sent to the `POST Marks a Vendor as active` endpoint. This activates the vendor record in Pleo.
+
+<Info />
+
+### Vendor Creation in Pleo
+
+You can also create a new vendor in Pleo without the record existing in the ERP/accounting system — send a manual request to the `POST Create a New Vendor` endpoint. The vendor is created in `Draft` state as the corresponding record is not yet present in the client; also, the `code` identifier is missing in this stage as it is assigned to each record by the ERP/accounting system. A webhook event `v1.vendor.created` is generated and a notification is sent to the integration. Once the record is created in the ERP system, the integration sends a request to the `POST Marks a Vendor as Active` endpoint — this changes the `Draft` state to `Active` and also assigns a unique `code` to the record.
+
+<Info />
+
+## Vendor API Functions
+
+The Vendor API allows you to perform various operations related to vendors, such as creating, retrieving, updating, archiving, and activating vendors. Each vendor is identified by a unique `code` that is assigned by the external application. Pleo also assigns an `id` to each record for internal identification.
+
+When an accounting entry is linked to a vendor, it helps to bookkeep the accounting entry to the correct vendor in the external accounting system.
+
+## Webhook Notification
+
+When any vendor is created in Pleo (the record is not yet existing in the ERP/accounting system), a webhook event `v1.vendor.created` is triggered. If the integration has subscribed to this event, a notification is sent to the configured endpoint.
+
+For more information on how to configure webhook subscriptions, see [Configuring Webhooks During Integration](/reference/overview-webhooks#configuring-webhooks-during-integration).
+
+### Sample Webhook Notification
+
+```
+"Event Headers":
+{
+    "webhook-id":"msg_p5jXN8AQM9LWM0D4loKWxJek",
+    "webhook-timestamp":1614265330,
+    "webhook-signature":"v1,g0hM9SsE+OTPJTGt/tmIKtSyZlE3uFJELVlNIOLJ1OE="
+}
+"Event Body":
+{
+    "data": {
+        "id": "c27ed4d6-3d3d-458e-8f3f-735fdf32a3bc",
+        "companyId": "00000000-0000-0000-0000-000000000000",
+        "name": "Pleo Technologies GmbH",
+        "country": "DE",
+        "registrationNumber": "",
+        "taxRegistrationNumber": "DE36538686",
+        "code": null,
+        "state": "DRAFT",
+        "defaultCurrency": "EUR",
+        "createdBy": "22aff90a-a53d-4f0c-851f-dd4cc85ac947",
+        "createdAt": "2025-02-21T10:05:43.530450712Z",
+        "updatedAt": "2025-02-21T10:05:43.530450712Z",
+        "deletedAt": null,
+    },
+    "eventType": "v1.vendor.created",
+    "eventId": "13d8550d-dd22-46e9-ae18-c171846ba373"
+}
+```
+
+## Rate Limits
+
+The APIs have a rate limit of 600 requests per minute.

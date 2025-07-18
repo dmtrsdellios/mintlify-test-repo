@@ -1,0 +1,34 @@
+---
+title: "OAuth Client Configuration"
+description: "Configuring your application to work with Pleo authorization server"
+---
+
+[Suggest Edits](/edit/client-configuration)
+
+After registering the OAuth client, configure it using the information provided below.
+
+| Parameter              | Value                                                                                 |
+| ---------------------- | ------------------------------------------------------------------------------------- |
+| Authorization Endpoint | `{AUTHORIZATION_SERVER_URL}/oauth/authorize`                                          |
+| Token Endpoint         | `{AUTHORIZATION_SERVER_URL}/oauth/token`                                              |
+| Grant Type             | Authorization code grant, with PKCE extension.                                        |
+| Client Credentials     | Client identifier and client secret of your client.                                   |
+| Client Authentication  | Only `client_secret_basic` client authentication method is supported.                 |
+| Redirect URI           | URI of a redirection endpoint used by your client.                                    |
+| PKCE                   | Required, if supported by the client. Only `S256` code challenge method is supported. |
+
+Exact mapping between these parameters and the configuration options provided by OAuth client implementation, depend on the choice of the the software. Consult the documentation provided by your chosen implementation of OAuth client.
+
+## Authorisation Server URL
+
+When configuring authorisation and token endpoints, substitute `{AUTHORIZATION_SERVER_URL}` with the base URL of the authorisation server in the environment that you’re developing for.
+
+| Environment | Authorization Server URL       |
+| ----------- | ------------------------------ |
+| Staging     | `https://auth.staging.pleo.io` |
+| Production  | `https://auth.pleo.io`         |
+
+***
+
+* [Table of Contents](#)
+* * [Authorisation Server URL](#authorisation-server-url)

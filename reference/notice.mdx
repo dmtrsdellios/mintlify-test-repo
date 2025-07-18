@@ -1,0 +1,57 @@
+---
+title: "Overview"
+---
+
+<Warning />
+
+# API Deprecation Notice
+
+As part of our ongoing efforts to improve and innovate our product offerings, we have decided to deprecate a number of API endpoints from Pleo’s API (now referred to collectively as the Legacy API). The legacy methods will be replaced by new methods over the coming months.
+
+We understand that this change may impact your current workflow, and we want to assure you that we are committed to providing the support you need during this transition. Here are the key details and dates to keep in mind:
+
+* **Deprecation Date:** Effective immediately, the Legacy API is considered deprecated. This means that while the API will remain operational until the end-of-life date, no new features will be added, and only critical security updates and bug fixes will be provided.
+* **End-of-Life Date:** After this date, the API endpoints will no longer respond to requests.
+* **Migration Support:** We are dedicated to helping you migrate to the new API. Over the next few months, we will be providing documentation, support, and tools to facilitate your transition. Further information on the migration path for each use case is provided below.
+* **Action Required:** If you are currently using the Legacy API, we recommend beginning the process of migrating your systems as soon as possible. Please review any integrations or applications that depend on the Legacy API and plan accordingly.
+
+## Migration Plans
+
+If your implementation of the Pleo API is for any of the following use cases, find more information about how these functions will be supported going forward.
+
+### Accounting Export
+
+Exporting Pleo expenses into you accounting or ERP system.
+
+| Description                                                                                               | Legacy API                                                                                                              | New API                                          | Availability |
+| --------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------ | ------------ |
+| Exporting accounting data from Pleo into your accounting or ERP system, including tax codes and receipts. | [Expense API](/reference/getexpense)[Tax Codes API ](/reference/gettaxcode)[Receipt API](/reference/getexpensereceipts) | [Export API](/reference/overview-1)              | Early Access |
+| Syncing cost centers/dimensions between Pleo and the ERP system                                           | [Legacy Tag Groups API](/reference/gettaggroups)                                                                        | [Tag Group API (NEW)](/reference/gettaggroups-2) | Early Access |
+| Setup of Categories and Accounts                                                                          | [Legacy Accounts API](/reference/getaccount)                                                                            | Accounts API (NEW)                               | Q1 2025      |
+| Setup of Taxes                                                                                            | [Legacy Tax Codes API](/reference/gettaxcode)                                                                           | [Tax Code API](/reference/createtaxcode)         | Early Access |
+
+### User Management
+
+Synchonising with your HR system to automate the adding or removal of user from Pleo
+
+| Description                  | Legacy API                               | New API                               | Availability |
+| ---------------------------- | ---------------------------------------- | ------------------------------------- | ------------ |
+| Add, update or delete a user | [Employee API](/reference/getemployee-1) | SCIM API                              | Early Access |
+| Teams and review structure   | [Teams API](/reference/createteam)       | User and organisation management APIs | H1 2025      |
+
+### Project Management
+
+Ensuring that cost centres within your project management software are represented in Pleo to easily reconcile expenses.
+
+| Description                                                | Legacy API                                       | New API                                           | Availability |
+| ---------------------------------------------------------- | ------------------------------------------------ | ------------------------------------------------- | ------------ |
+| Synchronise expenses with your project management software | [Expense API](/reference/getexpense)             | Accounting Entries API or extended Export API     | Q1 2025      |
+| Synchronise Pleo Tags with cost centers                    | [Legacy Tag Groups API](/reference/gettaggroups) | [Tag Groups API ](/reference/gettaggroups-2)(NEW) | Early Access |
+
+### Wallet Balance
+
+| Description                        | Legacy API                                          | New API         | Availability |
+| ---------------------------------- | --------------------------------------------------- | --------------- | ------------ |
+| Get the wallet balance for account | [Company Balance API](/reference/getcompanybalance) | Not Yet Planned | TBD          |
+
+If you are customer, please direct any questions to your support contact. If you are a partner, you can email [\[email protected\].](/cdn-cgi/l/email-protection#3756475e77475b5258195e5819)

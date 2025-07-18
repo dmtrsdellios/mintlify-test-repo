@@ -1,0 +1,13 @@
+---
+title: "Migrating from /completions to /me:activate"
+---
+
+# Migrating from /completions to /me:activate
+
+The `PUT /installations/completions` endpoint has been deprecated in favor of the `POST /installations/me:activate` endpoint. The new endpoint works exactly the same way as the old one, but it is more consistent with the other endpoints, and compliant with the Pleo API Standard.
+
+## Migration Guide
+
+1. Replace the `PUT /installations/completions` endpoint with the `POST /installations/me:activate` endpoint.
+2. Ensure the OAuth access token is included in the request `Authorization: Bearer {token}` header.
+3. Done

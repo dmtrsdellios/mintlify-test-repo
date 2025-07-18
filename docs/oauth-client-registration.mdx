@@ -1,0 +1,152 @@
+---
+title: "OAuth Client Registration"
+description: "Suggest Edits"
+---
+
+To initiate the process of OAuth authentication, you must first register a **Client**. To do so, provide registration data about your client in the form we provide. For your understanding, the registration data is categorised into the following types:
+
+* Human-readable information
+* Pleo specific information
+* Technical information
+
+## Registration Data
+
+### Human-Readable Information
+
+Human-readable information represents the following to the end-users:
+
+* Branding of the client
+* Link to the home page of the application or a page announcing the integration of the application with Pleo
+* Legal Policy documentation
+
+<Warning>
+  In human-readable information, do not mention Pleo's name and branding. Also, instead of naming the application branding as a client of Pleo (**Example Client for Pleo**), just use **Example Client**.
+</Warning>
+
+The following table lists the human-readable parameters required for registering a client:
+
+| Parameters       | Descriptions                                                                                                                                                                         |
+| ---------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Client Name      | A brand name of your application.                                                                                                                                                    |
+| Client URI       | A link to the home page of your application or a landing page announcing the integration of your application with Pleo.                                                              |
+| Logo             | An image representing the logo of your application. Square images (1:1 aspect ratio) in high resolution work best.                                                                   |
+| Terms of Service | Link to human-readable legal document describing contractual relationship between the end-user and the client, which is accepted by the end-user during authorisation of the client. |
+| Privacy Policy   | Link to human-readable legal document that describes how the deployment organisation collects, uses, retains, and discloses personal data of end-users.                              |
+| Contacts         | Contact information of people responsible for this client, typically email addresses.                                                                                                |
+
+### Pleo Specific Information
+
+The following table lists the parameters that are specific to integration of your client with Pleo:
+
+| Parameters     | Descriptions                                                                                                                                                                                          |
+| -------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Initiation URI | A link to a page on which the end user can start the process of connecting your application with Pleo. This allows your client to be listed in the catalogue of applications integrated with Pleo.    |
+| Settings URI   | A link to a page hosting the user interface to changing preferences of your application. Allows to link to the configuration page of your application directly from within Pleo product applications. |
+
+### Technical Information
+
+Technical information is used internally in OAuth protocol to implement the redirection between the Pleo authentication server and the client.
+
+| Parameters              | Descriptions                                                                                                                                                                                                                                                                                                                                                                                                                                                         |
+| ----------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Redirect URIs           | A list of URIs implementing the OAuth redirection endpoint. For more information, see [Redirect URIs](/v0.2/docs/client-registration).                                                                                                                                                                                                                                                                                                                               |
+| Scopes                  | A list of API scopes that a client is allowed to access in Pleo. This is provided to the client when Pleo generates the access tokens.                                                                                                                                                                                                                                                                                                                               |
+| PKCE Support            | By default, we require all client to implement PKCE extension of OAuth protocol to secure it against certain types of attacks. However, if this requirement cannot be met for technical reasons, we allow exceptions from this requirement for certain clients on an individual basis. If your client doesn’t support PKCE ([RFC 7636](https://www.rfc-editor.org/rfc/rfc7636) ), you must request to mark it as `not supporting PKCE` when registering your client. |
+| Subject Type Preference | (Optional, Pleo-specific) The default type of resources your application is capable of working with.                                                                                                                                                                                                                                                                                                                                                                 |
+
+## Client Credentials
+
+After completing registration, you would receive a set of credentials for your client:
+
+* **Client Identifier**: This is a unique identifier that makes your client easily identifiable from others. In addition, it allows Pleo to present the branding of your client to end-users when they are asked to authenticate their identity while trying to access the Pleo data. Client identifier is not a confidential information and is visible to anyone attempting to connect your client with Pleo using OAuth.
+
+* **Client Secret**: Requests from the client are authenticated using the **Client Secret**, most notably, during access token request. As the name suggests, this information is confidential and you must store this securely.
+
+  * Client secret must never be stored on or exposed to a device to which the end user has direct access. For example, it cannot be embedded in the code of the application that runs on users’ devices or transferred over network to a user's device.
+  * Client secret may only be stored and used on a secured server component of your client from where it cannot be extracted easily.
+
+<Warning>
+  The **Pleo OAuth Authorisation Server** does not support any **public** client that cannot protect the confidentiality of the authentication credentials.
+</Warning>
+
+### Client Registration Example
+
+A hypothetical client can be registered using the following parameters:
+
+| Parameters              | Values                                     |
+| ----------------------- | ------------------------------------------ |
+| Client Name             | “Example Client”                           |
+| Client URI              | `https://client.example/`                  |
+| Terms of Service        | `https://client.example/legal/tos.html`    |
+| Privacy Policy          | `https://client.example/legal/privacy.pdf` |
+| Contacts                | `[email protected]`                        |
+| Redirect URIs           | `https://client.example/callback`          |
+| Scopes                  | `test:test users:read users:write`         |
+| PKCE Support            | Supported                                  |
+| Subject Type Preference | None                                       |
+
+After registration, partners receives a set of client credentials.
+
+| Credentials       | Values                                 |
+| ----------------- | -------------------------------------- |
+| Client identifier | `36e3b610-56d7-4d36-92c7-a003ca7bfc5f` |
+| Client secret     | `70771f3cbf472ba916aefd21be9c7a`       |
+
+These values are explained in the Example section of [Implementing OAuth Reference Documentation](doc:https://developers.pleo.io/docs/oauth-implementation-reference-documentation).
+
+## Redirect URIs
+
+Redirect URI indicates the location where the users are redirected after successful authentication. Hence, in the context of Pleo integration with your client, after the **Pleo Authorisation Server** authenticates your client, the users are redirected to the specific URI.
+
+HTTP redirections are crucial in OAuth protocol flow using authorisation code grant.
+
+The client must implement a **redirection endpoint**, also known as “OAuth callback”. This endpoint must be secured by Transport Layer Security (TLS) and must be hosted on a public domain (hence, accessible to all users on the internet). When registering your client, you must provide this redirection URL in the technical information.
+
+**HTTP is allowed for local development**
+
+Use of HTTPS is often inconvenient in local development environment. Therefore, there is an exception for "loopback" or "localhost" redirect URIs, which can use the unencrypted HTTP protocol. Specifically, these hosts can use `http` scheme in redirect URIs:
+
+* `localhost` loopback interface
+* `127.0.0.1` IPv4 loopback interface, recommended
+* `[::1]` IPv6 loopback interface
+
+Only exact `localhost` host name is supported. Aliases such as `myclient.localhost` or `myclient.local` would not be accepted.
+
+> 💡 **Note** When deploying your client in the production environment, use of **HTTPS** is mandatory.
+
+**Multiple Redirect URIs**
+
+If you intend to support multiple URLs for redirection endpoints, you must provided as a list of registered redirect URIs.
+
+Often, a client allocates resources of their customers in subdomains (or sub-paths). For example: an application might host Alice’s resources at `alice.client.example`, Bob’s resources at `bob.client.example`. Some early implementations of OAuth offered this functionality, but later it is diagnosed to be vulnerable to a certain class of attacks on the OAuth protocol.
+
+<Warning>
+  To comply with best security practices, Pleo authorisation server does not offer any support for wildcards in redirect URIs.
+</Warning>
+
+If your client uses wildcards, we recommended using the `state` parameter to save the location your users must be redirected to after completing the OAuth flow. In this way, a single redirect endpoint can dispatch users’ browsers to different destinations.
+
+## Testing OAuth Using Graphical User Interface (GUI) Applications
+
+During development, it is often beneficial to test the OAuth flow, before setting up the client in the production environment. There are a number of popular HTTP GUI applications that offer support to test the OAuth authorisation.
+
+<Warning />
+
+We recommend using Postman [how to configure and use Postman](/docs/testing-pleo-oauth-and-apis-using-postman) to test OAuth and Pleo APIs.
+
+***
+
+* [Table of Contents](#)
+
+* * [Registration Data](#registration-data)
+
+    * [Human-Readable Information](#human-readable-information)
+    * [Pleo Specific Information](#pleo-specific-information)
+    * [Technical Information](#technical-information)
+
+  * [Client Credentials](#client-credentials)
+    * [Client Registration Example](#client-registration-example)
+
+  * [Redirect URIs](#redirect-uris)
+
+  * [Testing OAuth Using Graphical User Interface (GUI) Applications](#testing-oauth-using-graphical-user-interface-gui-applications)

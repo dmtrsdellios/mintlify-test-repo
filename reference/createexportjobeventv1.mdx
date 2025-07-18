@@ -1,0 +1,19 @@
+---
+title: "Create an Export Job Event"
+description: "post deprecatedhttps://external.pleo.io/v1/export-job-events"
+---
+
+The Export Job Events are used to move the Export Job through the export lifecycle, updating the status and results of the export. This endpoint is used to update the status and failure reasons (if failed) of an export job, i.e. start a job, mark a job as failed, complete a job, cancel a job, etc.
+
+```
+        Events:
+        
+        - started: Used to start processing an export job. This allows the integration 
+                service to start processing the export job items.
+        - failed: Use this to mark a job as failed when an irrecoverable error happens, 
+                and this could be while processing the export job items.
+        - completed: Used to indicate that all the export job items have been successfully processed.
+        - completed_with_errors: Used when all the export job items have been processed, but some of then failed.
+        - canceled: Used to indicate if the integration service is unable, for any reason, 
+                to continue processing the export job.
+```

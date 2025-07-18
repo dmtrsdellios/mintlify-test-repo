@@ -1,0 +1,301 @@
+---
+title: "Session Handover"
+description: "Suggest Edits"
+---
+
+# Introduction
+
+In the case where integrations are third-party applications, meaning they are not built as part of Pleo or the target system, the integration would either have to keep its own login screen, which would be a suboptimal user experience, or rely on a "session handover" from Pleo.
+
+To solve for this, our solution consists of a custom process where Pleo will generate a JWT token that we will pass along with the request. The third-party application can then verify the token by validating the token.
+
+If the user isn't authorized to manage the integration, the Pleo apps will manage the user experience, which means that the integration can assume that any request coming in with a valid token is authorized.
+
+Once the token is verified, the integration can create a local session for the user and show the integration, essentially treating the handover as a successful login.
+
+<Info>
+  The session handover token is not an access token. It is a token that is used to verify that the user is authorized to manage the integration. The integration should not use the token to access the Pleo API.
+</Info>
+
+## General flow
+
+1. From within Pleo, the User clicks on "Enable" or "Configure" for the integration
+
+2. Pleo creates and signs a JWT containing key information such as
+
+   * Company ID
+   * User ID
+   * Locale
+   * Expire date
+
+3. Pleo redirects the user to the integration with the JWT token attached in a query param (`pleo_id`)
+
+4. The integration verifies the JWT. **Please note that before the token is confirmed valid, no information in the token should be trusted.**
+
+<CodeGroup>
+  ```mermaid mermaid
+  sequenceDiagram 
+      actor U as Pleo User
+      participant P as Pleo
+      participant I as Integration
+      autonumber
+      
+      U->>P: Clicks on "Enable" or "Configure"
+      P->>P: Create JWT
+      P->>I: Redirect to integration with JWT
+      I->>I: Verify JWT
+      alt Valid
+          I->>I: Create local session
+          I->>U: Show integration
+      else Invalid
+          I->>U: Show error
+      end
+  ```
+</CodeGroup>
+
+## Implementation
+
+As much as possible, this spec leans onto standards defined by OpenID Connect **\[[OpenID.Core](http://openid.net/specs/openid-connect-core-1_0.html)]** set of specifications, for ease of comprehension, implementation, and migration.
+
+## ID Token
+
+### Header Parameters
+
+The Header Parameters for JWT ID Token were chosen to simplify implementation, and mitigate possible token misuse and token substitution attacks.
+
+The header MUST contain following Header Parameters:
+
+| Header Parameter | Description                                                    |
+| ---------------- | -------------------------------------------------------------- |
+| alg              | Cryptographic algorithm used to secure the JWT. MUST be RS256. |
+| typ              | Media type. MUST be pleo\_id+jwt.                              |
+| kid              | Key ID. Indicates which key was used to secure the JWT.        |
+
+Example:
+
+<CodeGroup>
+  ```json json
+  {
+    "alg": "RS256",
+    "typ": "pleo_id+jwt",
+    "kid": "sig-1696245492"
+  }
+  ```
+</CodeGroup>
+
+### Mandatory Claims
+
+The following claims are mandatory and MUST be present on all ID Tokens.
+
+| Claim | Description                                                           |
+| ----- | --------------------------------------------------------------------- |
+| iss   | Issuer Identifier. MUST be a URL of an issuer controlled by Pleo.     |
+| sub   | Subject. Contains the ID of the End-User represented by the ID token. |
+| aud   | Audience. MUST be the Client ID of the OAuth Client.                  |
+| exp   | Expiration time as a UNIX timestamp.                                  |
+| iat   | The time the token was issued as a UNIX timestamp.                    |
+
+A Client receiving the ID Token MUST validate these claims before using the token, as described in [ID Token validation](#IDTokenValidation) section below.
+
+Example:
+
+<CodeGroup>
+  ```json json
+  {
+    "iss": "https://auth.pleo.io",
+    "sub": "04fbc415-e5fc-4acc-937c-8964747ad43c",
+    "aud": "67e70bba-088d-47c7-a542-e631bb8cca7f",
+    "exp": 1696242931,
+    "iat": 1696239331
+  }
+  ```
+</CodeGroup>
+
+### End-User Claims
+
+The user personal information included in the claims.
+
+| Claim        |          | Description                                                                                              |
+| ------------ | -------- | -------------------------------------------------------------------------------------------------------- |
+| sub          | REQUIRED | Subject. The ID of a user as used in Pleo APIs.                                                          |
+| name         |          | Full name, including any titles and suffixes.                                                            |
+| given\_name  |          | Given name(s) or first names(s).                                                                         |
+| family\_name |          | Family name(s) or last names(s).                                                                         |
+| locale       |          | End-User's locale, represented as a BCP47 \[[RFC5646](http://tools.ietf.org/html/rfc5646)] language tag. |
+
+<CodeGroup>
+  ```json json
+  {
+    "sub": "04fbc415-e5fc-4acc-937c-8964747ad43c",
+    "name": "Jeppe Carøe Rindom",
+    "given_name": "Jeppe",
+    "family_name": "Rindom",
+    "locale": "da-DK"
+  }
+  ```
+</CodeGroup>
+
+### Additional Claims
+
+Under the `urn:pleo` namespace you'll find additional claims.
+
+| Claim            | Description                |
+| ---------------- | -------------------------- |
+| urn:pleo:company | Company Information Claim. |
+
+#### Company Information Claim
+
+The Company Information Claim represents a legal entity.
+
+| Field   |          | Description                                       |
+| ------- | -------- | ------------------------------------------------- |
+| sub     | REQUIRED | Subject. The Company ID, as used by the Pleo API. |
+| name    |          | Company name.                                     |
+| address |          | Legal address.                                    |
+
+Example:
+
+<CodeGroup>
+  ```json json
+  {
+    "urn:pleo:company": {
+      "sub": "3f4d3cf9-806f-4f6f-8cb0-94b69d23109e",
+      "name": "Pleo Technologies A/S",
+      "address": {
+        "formatted": "Ravnsborg Tværgade 5 C, 4. Copenhagen N, 2200, Denmark",
+        "street_address": "Ravnsborg Tværgade 5 C",
+        "locality": "Copenhagen",
+        "postal_code": "2200",
+        "country": "Denmark"
+      }
+    }
+  }
+  ```
+</CodeGroup>
+
+## []()ID Token validation
+
+A Client receiving the ID Token MUST validate it before making use of any of the Claims that it contains. For reference, see [Section 3.1.3.7 ID Token Validation](https://openid.net/specs/openid-connect-core-1_0.html#IDTokenValidation) of **\[[OpenID.Core](http://openid.net/specs/openid-connect-core-1_0.html)]**, from which the following algorithm was adapted.
+
+1. JWT Header Parameters
+
+   1. The `typ` JWT Header Parameter MUST be `pleo_id+jwt`.
+   2. The `alg` value of JWT Header Parameter MUST be `RS256`.
+   3. The public key identified by the `kid` Header Parameter MUST be present in public key set published in JWKS (see JWKS locations below) format by the Issuer.
+   4. The Client MUST validate the signature of all ID Tokens according to JWS **\[[RFC7515](https://datatracker.ietf.org/doc/html/rfc7515)]** using the algorithm specified in the JWT `alg` Header Parameter. The Client MUST use the keys provided by the Issuer.
+
+2. JWT Payload
+
+   1. The Issuer Identifier presented by `iss` Claim MUST be a URL that belongs to a Pleo-controlled Issuer trusted by the Client.
+   2. The Client MUST validate that the `aud` (audience) Claim contains its `client_id` value registered at the Issuer identified by the `iss` (issuer) Claim as an audience.
+   3. The current time MUST be before the time represented by the `exp` Claim.
+   4. The `iat` Claim MAY be used to reject tokens that were issued too far in the past from the current time.
+
+<Info>
+  When comparing timestamps, some small leeway MAY be allowed to account for clock skew.
+</Info>
+
+If during verification any of the “MUST” conditions are broken, the Client MUST reject the ID Token, and MUST NOT use any of the values represented in its Claims.
+
+### JWKS location
+
+| Issuer                                                       | Environment | JWKs Config URI                                                                                          |
+| ------------------------------------------------------------ | ----------- | -------------------------------------------------------------------------------------------------------- |
+| [https://auth.staging.pleo.io](https://auth.staging.pleo.io) | staging     | [https://auth.staging.pleo.io/.well-known/jwks.json](https://auth.staging.pleo.io/.well-known/jwks.json) |
+| [https://auth.pleo.io](https://auth.pleo.io)                 | production  | [https://auth.pleo.io/.well-known/jwks.json](https://auth.pleo.io/.well-known/jwks.json)                 |
+
+## Example of a full ID Token
+
+Following is an example of a full ID Token, with line breaks for illustrative purposes only.
+
+```
+eyJhbGciOiJSUzI1NiIsInR5cCI6InBsZW9faWQrand0Iiwia2lkIjoic2l
+nLTE2OTYyNDU0OTIifQ
+.
+eyJpc3MiOiJodHRwczovL2F1dGgucGxlby5pbyIsInN1YiI6IjA0ZmJjNDE
+1LWU1ZmMtNGFjYy05MzdjLTg5NjQ3NDdhZDQzYyIsImF1ZCI6IjY3ZTcwYm
+JhLTA4OGQtNDdjNy1hNTQyLWU2MzFiYjhjY2E3ZiIsImV4cCI6MTY5NjI0M
+jkzMSwiaWF0IjoxNjk2MjM5MzMxLCJuYW1lIjoiSmVwcGUgQ2Fyw7hlIFJp
+bmRvbSIsImdpdmVuX25hbWUiOiJKZXBwZSIsImZhbWlseV9uYW1lIjoiUml
+uZG9tIiwibG9jYWxlIjoiZGEtREsiLCJ1cm46cGxlbzpjb21wYW55Ijp7In
+N1YiI6IjNmNGQzY2Y5LTgwNmYtNGY2Zi04Y2IwLTk0YjY5ZDIzMTA5ZSIsI
+m5hbWUiOiJQbGVvIFRlY2hub2xvZ2llcyBBL1MiLCJhZGRyZXNzIjp7ImZv
+cm1hdHRlZCI6IlJhdm5zYm9yZyBUdsOmcmdhZGUgNSBDLCA0LiBDb3Blbmh
+hZ2VuIE4sIDIyMDAsIERlbm1hcmsiLCJzdHJlZXRfYWRkcmVzcyI6IlJhdm
+5zYm9yZyBUdsOmcmdhZGUgNSBDIiwibG9jYWxpdHkiOiJDb3BlbmhhZ2VuI
+iwicG9zdGFsX2NvZGUiOiIyMjAwIiwiY291bnRyeSI6IkRlbm1hcmsifX19
+.
+oSk73ScKYTji8SssmlXmLxF2uFFFMYKFs3VWeug1HSk7ilQgWs0N1dask2m
+ngVKrZIRPLYLFJnKYH83Ywua52Y63QFjHlTrLytLkvIcXMHEaQYNGEBJJ-6
+dM8qBsHULxyUO6lhTDgBzdddgcpX2NmE9iJlw3wajsedatui3uazuAZvbTz
+dSjSJIXNzIUCxG18X4pWn6n4GqbAxzfjpLQcAa8G_-nYjf51iK2egGEymG6
+WhyvTyf0C0nDH9uWnJCiDDNbncTdlA1_XgrEaUyMVNe0Nt04t9TIffzweYx
+U1NQgIm19DSila3ic58mH5WKQbO4Su-UuEhx4Ad3hzfOQqw
+```
+
+<Info>
+  [Examine this example on jwt.io](https://jwt.io/#debugger-io?token=eyJhbGciOiJSUzI1NiIsInR5cCI6InBsZW9faWQrand0Iiwia2lkIjoic2lnLTE2OTYyNDU0OTIifQ.eyJpc3MiOiJodHRwczovL2F1dGgucGxlby5pbyIsInN1YiI6IjA0ZmJjNDE1LWU1ZmMtNGFjYy05MzdjLTg5NjQ3NDdhZDQzYyIsImF1ZCI6IjY3ZTcwYmJhLTA4OGQtNDdjNy1hNTQyLWU2MzFiYjhjY2E3ZiIsImV4cCI6MTY5NjI0MjkzMSwiaWF0IjoxNjk2MjM5MzMxLCJuYW1lIjoiSmVwcGUgQ2Fyw7hlIFJpbmRvbSIsImdpdmVuX25hbWUiOiJKZXBwZSIsImZhbWlseV9uYW1lIjoiUmluZG9tIiwibG9jYWxlIjoiZGEtREsiLCJ1cm46cGxlbzpjb21wYW55Ijp7InN1YiI6IjNmNGQzY2Y5LTgwNmYtNGY2Zi04Y2IwLTk0YjY5ZDIzMTA5ZSIsIm5hbWUiOiJQbGVvIFRlY2hub2xvZ2llcyBBL1MiLCJhZGRyZXNzIjp7ImZvcm1hdHRlZCI6IlJhdm5zYm9yZyBUdsOmcmdhZGUgNSBDLCA0LiBDb3BlbmhhZ2VuIE4sIDIyMDAsIERlbm1hcmsiLCJzdHJlZXRfYWRkcmVzcyI6IlJhdm5zYm9yZyBUdsOmcmdhZGUgNSBDIiwibG9jYWxpdHkiOiJDb3BlbmhhZ2VuIiwicG9zdGFsX2NvZGUiOiIyMjAwIiwiY291bnRyeSI6IkRlbm1hcmsifX19.oSk73ScKYTji8SssmlXmLxF2uFFFMYKFs3VWeug1HSk7ilQgWs0N1dask2mngVKrZIRPLYLFJnKYH83Ywua52Y63QFjHlTrLytLkvIcXMHEaQYNGEBJJ-6dM8qBsHULxyUO6lhTDgBzdddgcpX2NmE9iJlw3wajsedatui3uazuAZvbTzdSjSJIXNzIUCxG18X4pWn6n4GqbAxzfjpLQcAa8G_-nYjf51iK2egGEymG6WhyvTyf0C0nDH9uWnJCiDDNbncTdlA1_XgrEaUyMVNe0Nt04t9TIffzweYxU1NQgIm19DSila3ic58mH5WKQbO4Su-UuEhx4Ad3hzfOQqw\&publicKey=%7B%0A%20%20%20%20%22kty%22%3A%20%22RSA%22%2C%0A%20%20%20%20%22e%22%3A%20%22AQAB%22%2C%0A%20%20%20%20%22use%22%3A%20%22sig%22%2C%0A%20%20%20%20%22kid%22%3A%20%22sig-1696245492%22%2C%0A%20%20%20%20%22alg%22%3A%20%22RS256%22%2C%0A%20%20%20%20%22n%22%3A%20%22s0D3uFrxs7wDFS1GXezWUQ28KwTtHH5XuHlltF6R7JCMb3UML2GbfZHrLzB5Jy0o78CYuRTBHXeAqHv4FOW_ffiLMrOxHly9agDcjB99kHFy6x6D52vQzsP-KFmFwEx2vO6x9uWo_f6Af_eOXEUafm6tZGQWWxtTDF73ldlb6ugIxsIMSeCTxRia21PZeYhdyrtNNx8bTM9j2HRgqsQ_kfymM54bsp37jFiV7bgJKkdUzLIYwq-9vHzw33q-hvLSvu7iG4BYcvKhAxKUtzJGmISl9CosJIxF30igJUhqCtYASY1mQDZdSVu7FQiylUVBbbrwUU9JQFmwZnD5FYW69w%22%0A%7D)
+</Info>
+
+### JWT Header
+
+<CodeGroup>
+  ```json json
+  {
+     "alg": "RS256",
+     "typ": "pleo_id+jwt",
+     "kid": "sig-1696245492"
+  }
+  ```
+</CodeGroup>
+
+This represents the same header as was used as an example in the normative section. It uses the public key identified by `sig-1696245492` Key ID for signature verification using `RS256` algorithm.
+
+### JWT Payload
+
+<CodeGroup>
+  ```json json
+  {
+     "iss": "fa",
+     "sub": "04fbc415-e5fc-4acc-937c-8964747ad43c",
+     "aud": "67e70bba-088d-47c7-a542-e631bb8cca7f",
+     "exp": 1696242931,
+     "iat": 1696239331,
+     "name": "Jeppe Carøe Rindom",
+     "given_name": "Jeppe",
+     "family_name": "Rindom",
+     "locale": "da-DK",
+     "urn:pleo:company": {
+        "sub": "3f4d3cf9-806f-4f6f-8cb0-94b69d23109e",
+        "name": "Pleo Technologies A/S",
+        "address": {
+           "formatted": "Ravnsborg Tværgade 5 C, 4. Copenhagen N, 2200, Denmark",
+           "street_address": "Ravnsborg Tværgade 5 C",
+           "locality": "Copenhagen",
+           "postal_code": "2200",
+           "country": "Denmark"
+        }
+     }
+  }
+  ```
+</CodeGroup>
+
+In this example:
+
+* In the `sub` claim you find `04fbc415-e5fc-4acc-937c-8964747ad43c` which is the ID of a resource representing the user by the name of Jeppe Rindom
+* In the `aud` claim you find `67e70bba-088d-47c7-a542-e631bb8cca7f` which is the `client_id` of a hypothetical Client that receives this token
+* In the `sub` claim under `urn:pleo:company` you find `3f4d3cf9-806f-4f6f-8cb0-94b69d23109e` which is the ID of a resource representing “Pleo Technologies A/S” company
+
+These values are for illustrative purposes only.
+
+***
+
+* [Table of Contents](#)
+
+* * [Introduction](#introduction)
+
+    * [General flow](#general-flow)
+    * [Implementation](#implementation)
+    * [ID Token](#id-token)
+    * [](#a-nameidtokenvalidationa-id-token-validation)[]()ID Token validation
+    * [Example of a full ID Token](#example-of-a-full-id-token)
